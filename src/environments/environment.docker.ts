@@ -1,5 +1,5 @@
 export const environment = {
-  production: true,
-  name: 'aws',
+  production: false,
+  name: 'docker',
   api:'http://0.0.0.0:3000'
 };

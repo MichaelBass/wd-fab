@@ -1,0 +1,24 @@
+.btn{
+	width: 25%;
+}
+
+.container-fluid{
+  text-align: left;
+  padding: 5em 5em 5em 5em;
+  margin: 1em 5em 5em 5em;
+  //background-color: #BBD8DC !important;
+  text-align: left;
+  border-style: solid;
+  border-width: 1px;
+}
+div{
+    margin: 10px;
+}
+label{
+    padding: 10px;
+    margin: 5px;
+}
+p{
+    padding: 10px;
+    margin: 5px;
+}

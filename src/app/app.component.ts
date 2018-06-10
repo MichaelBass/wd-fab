@@ -6,5 +6,6 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'app';
+  title = 'Work Disability Functional Assessment Battery';
+  subtitle = '(WD-FAB v 3.0)';
 }

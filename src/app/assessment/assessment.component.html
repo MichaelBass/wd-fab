@@ -1,0 +1,20 @@
+<div class="container-fluid">
+<div *ngIf="item">
+<h2>
+  <label>{{item.Prompt}}</label>
+</h2>
+<ul class="maps">
+<li *ngFor="let map of item.Maps"
+  [class.selected]="map === selectedMap"
+  (click)="onSelect(map)">
+  <span class="badge">{{map.ResponseOption}}</span>
+</li>
+</ul>
+<button (click)="onSubmit()" [disabled]="isDisabled" class="btn btn-primary" >Next</button>
+<!--
+<p>
+<label class="label label-primary">{{message}}</label>
+</p>
+-->
+</div>
+</div>

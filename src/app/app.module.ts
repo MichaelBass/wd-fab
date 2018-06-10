@@ -1,18 +1,43 @@
 import { BrowserModule } from '@angular/platform-browser';
+import { ReactiveFormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
-
-
+import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
+import { appStoreProviders } from './app.store';
+
+
+
+import { LoginComponent } from './login/login.component';
+import { DemographicsComponent } from './demographics/demographics.component';
+import { AssessmentComponent } from './assessment/assessment.component';
+import { IntroComponent } from './intro/intro.component';
+import { PortalComponent } from './portal/portal.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { CatService } from './cat.service';
+import { MongoDbService } from './mongo-db.service';
+import { AppRoutingModule } from './/app-routing.module';
+
 
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    LoginComponent,
+    DemographicsComponent,
+    AssessmentComponent,
+    IntroComponent,
+    PortalComponent,
+    DashboardComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    FormsModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    AppRoutingModule
   ],
-  providers: [],
+  providers: [CatService,MongoDbService,appStoreProviders, { provide: 'Window',  useValue: window }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

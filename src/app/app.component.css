@@ -1,0 +1,30 @@
+body, input[text], label, div, a, nav {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+nav{
+    margin: 10px;
+}
+
+div{
+    margin: 10px;
+}
+
+label{
+    padding: 10px;
+    margin: 5px;
+}
+
+p{
+    padding: 10px;
+    margin: 5px;
+}
+
+.container-fluid{
+  padding: 5em 5em 5em 5em;
+  margin: 1em 5em 5em 5em;
+  //background-color: #BBD8DC !important;
+  text-align: left;
+  border-style: solid;
+  border-width: 1px;
+}

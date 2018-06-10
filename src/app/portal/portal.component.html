@@ -1,0 +1,26 @@
+<div class="container-fluid">
+<div style="text-align:center">	
+<p>
+Please login to the assessment using the username and password provided by coordinator.
+</p>
+<p>
+<label class="label label-default">Identification Code:</label>
+<input [(ngModel)]="study_code" placeholder="username">
+</p>  
+ 
+<p>   
+<label class="label label-default">Sponsor Code:</label>
+<input type="password" [(ngModel)]="sponsor_code" placeholder="password">    
+</p>
+
+<p>
+<button (click)="addUser()" class="btn btn-primary"> Login </button>
+</p>
+
+<p>
+<label class="label label-warning">{{message}}</label>
+</p>
+
+</div>
+</div>
+
