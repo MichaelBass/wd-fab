@@ -61,7 +61,8 @@ export class DemographicsComponent implements OnInit {
 
     let group: any = {};
     group['demo_gender'] = new FormControl('demo_gender', [Validators.required,Validators.min(0)] );
-    group['demo_age'] = new FormControl('demo_age', [Validators.required,Validators.min(0)]);
+    //group['demo_age'] = new FormControl('demo_age', [Validators.required,Validators.min(0)]);
+    group['demo_age'] = new FormControl('demo_age');
     group['demo_walking'] = new FormControl('demo_walking', [Validators.required,Validators.min(0)]);
     group['demo_wc'] = new FormControl('demo_wc', [Validators.required,Validators.min(0)]);
     group['demo_other'] = new FormControl('demo_other');
@@ -111,7 +112,11 @@ export class DemographicsComponent implements OnInit {
         this.user = user;
         this.updateAssessments();
         this.message = user.message;
+      },
+      err => {
+        this.message = "Error saving demographics";
       }
+
     )
     
   }
@@ -124,6 +129,9 @@ export class DemographicsComponent implements OnInit {
         this.user = data;
         this.calculate_exlusion_code();
         this.loadForms();
+      },
+      err => {
+        this.message = "Error updateAssessments";
       }
     )
   }
@@ -269,12 +277,12 @@ export class DemographicsComponent implements OnInit {
         this.isRaceMissing = true;
         return;
       }
-
+/*
       if (isNaN(payLoad.demo_age)) {
         this.isAgeValid = false;
         return;
       }
-
+*/      
       var dem = new Demographic();
       dem.age = payLoad.demo_age;
       dem.drive = payLoad.demo_drive;

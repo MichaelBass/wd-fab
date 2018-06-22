@@ -49,7 +49,7 @@ export class DashboardComponent implements OnInit {
         fields => {
         this.message = "returning " + fields.length + " users.";
         this.people = fields; 
-      }
+      }, err => {console.log("Error getting all people");}
     );
   }
 
@@ -57,7 +57,7 @@ export class DashboardComponent implements OnInit {
     this.mongodbService.findPerson(this._id).subscribe(  
         fields => {
         //console.log(fields); 
-      }
+      }, err => {console.log("Error finding Person");}
     );  
   }
 
@@ -66,7 +66,7 @@ export class DashboardComponent implements OnInit {
       fields => {
         //console.log(fields);
         this.getUsers(); 
-      }
+      }, err => {console.log("Error getting all people");}
     )
   }
 
@@ -76,7 +76,7 @@ export class DashboardComponent implements OnInit {
         //console.log(fields);
         this.message = fields.message;
         this.getUsers(); 
-      }
+      }, err => {console.log("Error deleting person");}
     )  
   }
 
@@ -177,7 +177,7 @@ export class DashboardComponent implements OnInit {
         this.study_code='';
         this.sponsor_code='';
         this.message = fields.message;
-      }
+      }, err => {console.log("Error adding person");}
     )  
   }
 
@@ -199,7 +199,7 @@ export class DashboardComponent implements OnInit {
 
         this.store.dispatch(CounterActions.create_user(this.person));
         this.router.navigate(['/assessment']);
-      } 
+      } , err => {console.log("Error finding person");}
     );
   }
 

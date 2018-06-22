@@ -51,7 +51,7 @@ export class PortalComponent implements OnInit {
           this.store.dispatch(CounterActions.clear_state());
           this.message = 'Invalid credentials.';
         }
-    }
+    }, err => {console.log("Error logging in person");}
     );
 
   }

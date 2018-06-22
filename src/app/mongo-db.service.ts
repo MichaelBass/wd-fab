@@ -16,6 +16,8 @@ import { ADMINS } from './admins';
 // Import rxjs map operator
 import 'rxjs/add/operator/map';
 
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/observable/throw';
 
 @Injectable()
 export class MongoDbService {
@@ -24,7 +26,7 @@ export class MongoDbService {
 
   constructor(private http: HttpClient, @Inject('Window') window: Window) {
     this.API = window.location.protocol + '//' +  window.location.hostname + ":3000";
-    console.log(this.API);
+    //console.log(this.API);
    }
 
   loginAdmin(username:String, password:String): Admin[] {
@@ -36,40 +38,40 @@ export class MongoDbService {
 
 	// Add one person to the API
 	addPerson(oid: String, study_code:String, sponsor_code:String): Observable<User> {
-		return this.http.post<User>(`${this.API}/users`, {oid, study_code, sponsor_code});
+		return this.http.post<User>(`${this.API}/users`, {oid, study_code, sponsor_code}).catch((err) =>{return Observable.throw(err)});
 	}
 
 	// Get all users from the API
 	getAllPeople(): Observable<User[]> {
-		return this.http.get<User[]>(`${this.API}/users`);
+		return this.http.get<User[]>(`${this.API}/users`).catch((err) =>{return Observable.throw(err)});
 	}
 
 	// find a person in the API
 	findPerson(_id: string): Observable<User> {
-		return this.http.get<User>(`${this.API}/users/` + _id);
+		return this.http.get<User>(`${this.API}/users/` + _id).catch((err) =>{return Observable.throw(err)});
 	}
 
 	// log a person in the API
 	loginPerson(study_code: string, sponsor_code:string): Observable<User[]> {
-		return this.http.get<User[]>(`${this.API}/users/` + encodeURI(study_code) + `/` + encodeURI(sponsor_code));
+		return this.http.get<User[]>(`${this.API}/users/` + encodeURI(study_code) + `/` + encodeURI(sponsor_code)).catch((err) =>{return Observable.throw(err)});
 	}
 
 	// update a person in the API
 	updatePerson(_id: String, oid: String, study_code: String, sponsor_code:String): Observable<User>{
-		return this.http.put<User>(`${this.API}/users/`+ _id, {oid, study_code, sponsor_code});
+		return this.http.put<User>(`${this.API}/users/`+ _id, {oid, study_code, sponsor_code}).catch((err) =>{return Observable.throw(err)});
 	}
 
 	// delete a person in the API
 	deletePerson(_id): Observable<any> {
-		return this.http.delete<User>(`${this.API}/users/`+ _id);
+		return this.http.delete<User>(`${this.API}/users/`+ _id).catch((err) =>{return Observable.throw(err)});
 	}
 
 	updateDemo(_id: String, dem: Demographic): Observable<User> {
-    return this.http.put<User>(`${this.API}/demo/`+ _id, dem);
+      return this.http.put<User>(`${this.API}/demo/`+ _id, dem).catch((err) =>{return Observable.throw(err)});
 	}
 
   loadForms(_id: String, forms: Array<Form>): Observable<User> {
-    return this.http.put<User>(`${this.API}/forms/`+ _id, forms);
+    return this.http.put<User>(`${this.API}/forms/`+ _id, forms).catch((err) =>{return Observable.throw(err)});
   }
 
 	updateAssessments(user: User): Observable<User> {
@@ -127,12 +129,12 @@ export class MongoDbService {
 			   }
     	}
 
-		return this.http.put<User>(`${this.API}/assessments/`+ user._id, assessments);
+		return this.http.put<User>(`${this.API}/assessments/`+ user._id, assessments).catch((err) =>{return Observable.throw(err)});
 	}
 
   startAssessment(_id: String, assessments: Array<Assessment>): Observable<User> {
     
-    return this.http.put<User>(`${this.API}/assessments/`+ _id, assessments);
+    return this.http.put<User>(`${this.API}/assessments/`+ _id, assessments).catch((err) =>{return Observable.throw(err)});
   }
 
 	shuffle(array) {
@@ -155,15 +157,15 @@ export class MongoDbService {
 	}
 
   addResponse(_id: String, response: Response): Observable<any> {
-    return this.http.put<User>(`${this.API}/responses/`+ _id, response);
+    return this.http.put<User>(`${this.API}/responses/`+ _id, response).catch((err) =>{return Observable.throw(err)});
   }
 
   getResponses(_id: String): Observable<Response[]> {
-    return this.http.get<Response[]>(`${this.API}/responses/`+ _id);
+    return this.http.get<Response[]>(`${this.API}/responses/`+ _id).catch((err) =>{return Observable.throw(err)});
   }
 
   addResult(_id: String, result: Result): Observable<any> {
-    return this.http.put<User>(`${this.API}/results/`+ _id, result);
+    return this.http.put<User>(`${this.API}/results/`+ _id, result).catch((err) =>{return Observable.throw(err)});
   }
 
   

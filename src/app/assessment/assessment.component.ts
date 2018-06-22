@@ -88,7 +88,8 @@ export class AssessmentComponent implements OnInit {
 						this.user.results.push(_result);
 						this.store.dispatch(CounterActions.create_user(this.user));
 						this.getNextItem();
-					}
+					},
+      				err => {console.log("Error adding Results");}
 				)
 				
 			}
@@ -109,7 +110,8 @@ export class AssessmentComponent implements OnInit {
     	this.mongodbService.addResponse(this.user._id, this.response).subscribe(
       		result=> {
       			this.calculateEstimate();
-      		}
+      		},
+      		err => {console.log("Error adding Responses");}
     	)	
 	}
 
