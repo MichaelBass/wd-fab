@@ -1,5 +1,6 @@
 body, input[text], label, div, a, nav {
   font-family: Arial, Helvetica, sans-serif;
+  text-align:center;
 }
 
 nav{
@@ -19,7 +20,7 @@ p{
     padding: 10px;
     margin: 5px;
 }
-
+/*
 .container-fluid{
   padding: 5em 5em 5em 5em;
   margin: 1em 5em 5em 5em;
@@ -28,3 +29,4 @@ p{
   border-style: solid;
   border-width: 1px;
 }
+*/

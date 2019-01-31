@@ -31,25 +31,37 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  onKeydown(event) {
+    if (event.key === "Enter") {
+      this.login();
+    }
+  }
 
   login() {
 
-    var fields = this.mongodbService.loginAdmin(this.username, this.password);
+    this.mongodbService.loginAdmin(this.username, this.password).subscribe(
 
-    if(fields.length == 1){
+      fields => {
 
-      this.admin = fields[0];
-      this.store.dispatch(CounterActions.create_admin(this.admin));
-      if(this.admin._id != "0"){
-        this.router.navigate(['/dashboard']); 
-      } else {
-        this.store.dispatch(CounterActions.clear_state());
-        this.message = 'Invalid credentials.';          
+        if(fields.length == 1){
+
+          this.admin = fields[0];
+          this.store.dispatch(CounterActions.create_admin(this.admin));
+          if(this.admin._id != "0"){
+            this.router.navigate(['/dashboard']); 
+          } else {
+            this.store.dispatch(CounterActions.clear_state());
+            this.message = 'Invalid credentials.';          
+          }
+        } else{
+          this.store.dispatch(CounterActions.clear_state());
+          this.message = 'Invalid credentials.';
+        }
+      },
+      err => {
+        this.message = "Error logging in.";
       }
-    } else{
-      this.store.dispatch(CounterActions.clear_state());
-      this.message = 'Invalid credentials.';
-    }
+    )
 
 
   }

@@ -1,26 +1,28 @@
 <div class="container-fluid">
-<div style="text-align:center">	
-<p>
-Please login to the assessment using the username and password provided by coordinator.
+<div style="text-align:center">
+
+<p class="text-muted">
+Please login to the assessment using the Identification Code and Sponsor Code provided by coordinator.
 </p>
 <p>
-<label class="label label-default">Identification Code:</label>
-<input [(ngModel)]="study_code" placeholder="username">
+<!--<label class="label label-default">Identification Code:</label>-->
+<input [(ngModel)]="study_code" class="form-control" placeholder="username">
 </p>  
  
 <p>   
-<label class="label label-default">Sponsor Code:</label>
-<input type="password" [(ngModel)]="sponsor_code" placeholder="password">    
+<!--<label class="label label-default">Sponsor Code:</label>-->
+<input type="password" [(ngModel)]="password" (keydown)="onKeydown($event)" class="form-control" placeholder="password">    
 </p>
 
 <p>
-<button (click)="addUser()" class="btn btn-primary"> Login </button>
+<button (click)="addUser()" class="btn btn-primary btn-lg btn-block"> Login </button>
 </p>
+
 
 <p>
-<label class="label label-warning">{{message}}</label>
+ <label *ngIf="message" class="text-danger"><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span> {{message}}</label> 
 </p>
+</div>
+</div>
 
-</div>
-</div>
 

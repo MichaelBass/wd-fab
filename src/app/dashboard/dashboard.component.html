@@ -1,12 +1,15 @@
 <div>
   <p>Users - <label class="label label-primary">{{message}}</label></p>
+  <p style="text-align:right"><button (click)="logOff()"class="btn btn-default">Log off</button></p>
     <table class="table table-hover">
-    <tr class="success" style="text-align:left"><th>oid</th><th>study code</th><th>sponsor code</th><th>Assessment</th><th>Results</th><th>Update</th><th>Delete</th></tr>
+    <tr class="success" style="text-align:left"><th>oid</th><th>study code</th><th>password</th><th>sponsor code</th><th>Assessment</th><th>Summary</th><th>Results</th><th>Update</th><th>Delete</th>
+    </tr>
 	<tr *ngFor="let person of people" style="text-align:left">
     
     <td><input [(ngModel)]="person.oid" placeholder="oid"></td>
-    <td><input [(ngModel)]="person.study_code" placeholder="study code"></td>
-    <td><input [(ngModel)]="person.sponsor_code" placeholder="sponsor code"></td>
+    <td><input [(ngModel)]="person.study_code" placeholder="username"></td>
+    <td><input [(ngModel)]="person.password" placeholder="password"></td>
+    <td>{{person.sponsor_code}}</td>
    
 <!--
     <td><button (click)="selectUser(person._id)"class="btn btn-default">Start Assessment </button></td>
@@ -15,15 +18,17 @@
     <td> <span *ngIf="person.forms">{{person.forms[0]}},{{person.forms[1]}},{{person.forms[2]}},{{person.forms[3]}},{{person.forms[4]}},{{person.forms[5]}}</span></td>
  -->
     <td><button (click)="gotoLogin()"class="btn btn-default">Start Assessment </button></td>
+    <td><button (click)="exportSummaryData(person)"class="btn btn-default">Summary Data </button></td> 
     <td><button (click)="exportData(person)"class="btn btn-default">Export Data </button></td>   
     <td><button (click)="updateUser(person)"class="btn btn-default">Update </button></td>
     <td><button (click)="deleteUser(person._id)"class="btn btn-default">Delete </button></td>
   </tr>
   <tr style="text-align:left">
     <td><input [(ngModel)]="oid" placeholder="oid"></td>
-    <td><input [(ngModel)]="study_code" placeholder="study_code"></td>
-    <td><input [(ngModel)]="sponsor_code" placeholder="sponsor_code"></td>
-    <td colspan='4'><button (click)="addUser()"class="btn btn-default">Add </button></td>
+    <td><input [(ngModel)]="study_code" placeholder="username"></td>
+    <td><input [(ngModel)]="password" placeholder="password"></td>
+    <td></td>
+    <td colspan='5'><button (click)="addUser()"class="btn btn-default">Add </button></td>
   </tr>
 	</table>
 </div>

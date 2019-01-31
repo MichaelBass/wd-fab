@@ -7,6 +7,7 @@ import { AssessmentComponent } from './assessment/assessment.component';
 import { IntroComponent } from './intro/intro.component';
 import { PortalComponent } from './portal/portal.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { FinishComponent } from './finish/finish.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/portal', pathMatch: 'full' },
@@ -20,6 +21,8 @@ const routes: Routes = [
   { path: 'intro/:id', component: IntroComponent },
   { path: 'demographics', component: DemographicsComponent },
   { path: 'assessment', component: AssessmentComponent },
+  { path: 'finish', component: FinishComponent },
+  { path: 'finish/:message', component: FinishComponent }
 ];
 
 @NgModule({

@@ -11,7 +11,6 @@ import { Form } from './form';
 import { Item } from './item';
 
 import { Admin } from './admin';
-import { ADMINS } from './admins';
 
 // Import rxjs map operator
 import 'rxjs/add/operator/map';
@@ -29,16 +28,14 @@ export class MongoDbService {
     //console.log(this.API);
    }
 
-  loginAdmin(username:String, password:String): Admin[] {
-
-    let admins = ADMINS.filter((a) => a.username === username && a.password == password);
-    return admins;
+  loginAdmin(username:string, password:string): Observable<Admin[]> {
+    return this.http.post<Admin[]>(`${this.API}/login`, {username, password}).catch((err) =>{return Observable.throw(err)});
   }
 
 
 	// Add one person to the API
-	addPerson(oid: String, study_code:String, sponsor_code:String): Observable<User> {
-		return this.http.post<User>(`${this.API}/users`, {oid, study_code, sponsor_code}).catch((err) =>{return Observable.throw(err)});
+	addPerson(oid: string, study_code:string, password:string, sponsor_code:string): Observable<User> {
+		return this.http.post<User>(`${this.API}/users`, {oid, study_code, password, sponsor_code}).catch((err) =>{return Observable.throw(err)});
 	}
 
 	// Get all users from the API
@@ -46,19 +43,24 @@ export class MongoDbService {
 		return this.http.get<User[]>(`${this.API}/users`).catch((err) =>{return Observable.throw(err)});
 	}
 
-	// find a person in the API
-	findPerson(_id: string): Observable<User> {
-		return this.http.get<User>(`${this.API}/users/` + _id).catch((err) =>{return Observable.throw(err)});
+  // find a people in the API
+  findPerson(id: string): Observable<User> {
+    return this.http.get<User>(`${this.API}/search_users/` + id).catch((err) =>{return Observable.throw(err)});
+  }
+
+	// find a people in the API by sponsor-code
+	searchPerson(sponsor_code: string): Observable<User[]> {
+		return this.http.get<User[]>(`${this.API}/search_users/` + sponsor_code).catch((err) =>{return Observable.throw(err)});
 	}
 
-	// log a person in the API
-	loginPerson(study_code: string, sponsor_code:string): Observable<User[]> {
-		return this.http.get<User[]>(`${this.API}/users/` + encodeURI(study_code) + `/` + encodeURI(sponsor_code)).catch((err) =>{return Observable.throw(err)});
-	}
+  // log a person in the API
+  loginPerson(study_code: string, password:string): Observable<User[]> {
+    return this.http.get<User[]>(`${this.API}/users/` + encodeURI(study_code) + `/` + encodeURI(password)).catch((err) =>{return Observable.throw(err)});
+  }
 
 	// update a person in the API
-	updatePerson(_id: String, oid: String, study_code: String, sponsor_code:String): Observable<User>{
-		return this.http.put<User>(`${this.API}/users/`+ _id, {oid, study_code, sponsor_code}).catch((err) =>{return Observable.throw(err)});
+	updatePerson(_id: String, oid: String, study_code: String, password:String): Observable<User>{
+		return this.http.put<User>(`${this.API}/users/`+ _id, {oid, study_code, password}).catch((err) =>{return Observable.throw(err)});
 	}
 
 	// delete a person in the API
@@ -76,7 +78,9 @@ export class MongoDbService {
 
 	updateAssessments(user: User): Observable<User> {
 		
-		var startDomain = Math.floor(Math.random() * Math.floor(2));
+		
+    var startDomain = Math.floor(Math.random() * Math.floor(2));
+    // startDomain = 1; // Hard-code to start physical function 
 
     	var behavior : Array<Assessment> = [];
     	behavior.push({"ID":0,"Domain":"Cognition and Communication","Active":false, "Started":null, "Finished":null});
@@ -94,6 +98,8 @@ export class MongoDbService {
     	phy.push({"ID":8,"Domain":"Community Mobility (Public Transportation)","Active":false, "Started":null, "Finished":null});
     	phy.push({"ID":9,"Domain":"Wheelchair","Active":false, "Started":null, "Finished":null});
 
+
+
     	if(user.demo.wc == 2){
     		phy.splice(5,1);
     	}
@@ -107,6 +113,8 @@ export class MongoDbService {
     	}
 
     	phy = this.shuffle(phy);
+
+
     	var assessments = [];
 
     	if( startDomain == 0 ){
@@ -120,13 +128,14 @@ export class MongoDbService {
 
     	}else{
 
-    	    for (var i = 0;i < phy.length; i++) {
+    	   for (var i = 0;i < phy.length; i++) {
   				assessments.push(phy[i]);
 			   }
 
     		for (var i = 0; i < behavior.length; i++) {
   				assessments.push(behavior[i]);
-			   }
+			  }
+
     	}
 
 		return this.http.put<User>(`${this.API}/assessments/`+ user._id, assessments).catch((err) =>{return Observable.throw(err)});

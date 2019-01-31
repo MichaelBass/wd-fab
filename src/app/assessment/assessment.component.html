@@ -6,15 +6,12 @@
 <ul class="maps">
 <li *ngFor="let map of item.Maps"
   [class.selected]="map === selectedMap"
-  (click)="onSelect(map)">
-  <span class="badge">{{map.ResponseOption}}</span>
+  (click)="onSelect(map)" class="bg-info">
+ 	<p [ngStyle]= "{'color': clear ? '#D9EDF7' : 'black'}" >{{map.ResponseOption}}</p>
 </li>
 </ul>
-<button (click)="onSubmit()" [disabled]="isDisabled" class="btn btn-primary" >Next</button>
-<!--
 <p>
-<label class="label label-primary">{{message}}</label>
+<button (click)="onSubmit()" [disabled]="isDisabled" class="btn btn-primary btn-lg btn-block" >Next</button>
 </p>
--->
 </div>
 </div>

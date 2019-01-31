@@ -28,6 +28,8 @@ export class AssessmentComponent implements OnInit {
 	message: string;
 	isDisabled: boolean;
 
+	clear: boolean;
+
 	constructor(@Inject(AppStore) private store: Store<AppState>, private catService: CatService, private router: Router, private mongodbService: MongoDbService) { }
 
 	ngOnInit() {
@@ -47,10 +49,10 @@ export class AssessmentComponent implements OnInit {
 
 		this.catService.getNextItem().subscribe(
 			data => { 
-			
+				this.clear = false;
 				this.item = data;
 				if(this.item  == null){
-					this.router.navigate(['/dashboard','Test is complete.']);
+					this.router.navigate(['/finish','The assessment is complete.']);
 				}
 			
 			}
@@ -60,6 +62,8 @@ export class AssessmentComponent implements OnInit {
 	onSelect(map: Map): void {
 		this.selectedMap = map;
 		this.isDisabled = false;
+
+		//this.onSubmit();
 	}
 
 	onSubmit(): void {
@@ -70,9 +74,18 @@ export class AssessmentComponent implements OnInit {
 	getNextItem(){
 		this.catService.getNextItem().subscribe(
 			data => { 
+				this.clear = false;
 				this.item = data;
 				if( this.item.ID == undefined ){
-					this.router.navigate(['/dashboard','Test is complete.']);
+
+					this.user = this.store.getState().user;
+				    let assessment2 = this.user.assessments.filter((a) => a.Finished == null); // array of current assessment
+				    if(assessment2.length > 0){
+				    	this.getItem();
+				    } else{
+				    	this.router.navigate(['/finish','The assessment is complete.']);
+				    }
+					
 				}
 			}
 		)
@@ -83,6 +96,7 @@ export class AssessmentComponent implements OnInit {
 			data => { 
 
 				var _result = data;
+
 				this.mongodbService.addResult(this.user._id, _result).subscribe(
 					data2=> {
 						this.user.results.push(_result);
@@ -103,12 +117,16 @@ export class AssessmentComponent implements OnInit {
 		this.response.Prompt = this.item.Prompt;
 		this.response.ItemResponseOID = this.selectedMap.ItemResponseOID;
 		this.response.Value = this.selectedMap.Value;
-		//console.log(this.response);
 
+		//clear screen;
+		this.item.Prompt  = "";
+		this.clear = true;
 		this.selectedMap = null;
 
     	this.mongodbService.addResponse(this.user._id, this.response).subscribe(
       		result=> {
+      			this.user.responses.push(this.response);
+				this.store.dispatch(CounterActions.create_user(this.user));
       			this.calculateEstimate();
       		},
       		err => {console.log("Error adding Responses");}

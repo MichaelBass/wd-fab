@@ -1,17 +1,18 @@
 <div class="container-fluid">
-<div style="text-align:center">	
+<div style="text-align:center">
 <p>
-<label class="label label-primary">User Name:</label>
-<input [(ngModel)]="username" placeholder="name">
+<!--<label class="label label-primary">User Name:</label>-->
+<input [(ngModel)]="username" class="form-control" placeholder="username">
 </p>  
-    
-<label class="label label-primary">Password:</label>
-<input [(ngModel)]="password" placeholder="name">    
+<p>  
+<!--<label class="label label-primary">Password:</label>-->
+<input type="password" [(ngModel)]="password" (keydown)="onKeydown($event)" class="form-control" placeholder="password"> 
+</p>   
 <p>
-<button (click)="login()" class="btn btn-default"> Login </button>
+<button (click)="login()" class="btn btn-primary btn-lg btn-block"> Login </button>
 </p>
 <p>
-<label class="label label-primary">{{message}}</label>
+ <label *ngIf="message" class="text-danger"><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span> {{message}}</label> 
 </p>
 </div>
 </div>

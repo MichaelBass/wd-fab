@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve -H 0.0.0.0",
+    "start": "ng serve -H 0.0.0.0 --disableHostCheck true",
     "build": "ng build --prod",
     "test": "ng test",
     "lint": "ng lint",
@@ -21,9 +21,11 @@
     "@angular/platform-browser": "^5.2.0",
     "@angular/platform-browser-dynamic": "^5.2.0",
     "@angular/router": "^5.2.0",
+    "class.js": "0.0.1",
+    "classlist.js": "^1.1.20150312",
     "core-js": "^2.4.1",
-    "redux": "3.6.0",
     "ng2-checklist": "^1.0.2",
+    "redux": "3.6.0",
     "rxjs": "^5.5.6",
     "zone.js": "^0.8.19"
   },
@@ -42,7 +44,7 @@
     "karma-coverage-istanbul-reporter": "^1.2.1",
     "karma-jasmine": "~1.1.0",
     "karma-jasmine-html-reporter": "^0.2.2",
-    "protractor": "^5.3.2",
+    "protractor": "^5.4.1",
     "ts-node": "~4.1.0",
     "tslint": "~5.9.1",
     "typescript": "~2.5.3"

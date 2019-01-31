@@ -37,6 +37,7 @@ export class DemographicsComponent implements OnInit {
   race_selected_32 = false;
   race_selected_64 = false;
   race_selected_128 = false;
+  race_selected_256 = false;
 
   demo: Demographic = {
     gender: -1,
@@ -101,6 +102,10 @@ export class DemographicsComponent implements OnInit {
     this.race_selected_128 = (this.demo.race & 128) == 128;
     group['demo_128'].setValue(this.race_selected_128);
 
+    group['demo_256'] = new FormControl('demo_256');
+    this.race_selected_256 = (this.demo.race & 256) == 256;
+    group['demo_256'].setValue(this.race_selected_256);
+
     this.form = new FormGroup(group);
 
   }
@@ -112,6 +117,7 @@ export class DemographicsComponent implements OnInit {
         this.user = user;
         this.updateAssessments();
         this.message = user.message;
+        this.router.navigate(['/intro']);
       },
       err => {
         this.message = "Error saving demographics";
@@ -230,6 +236,7 @@ export class DemographicsComponent implements OnInit {
     this.race_selected_32 = false;
     this.race_selected_64 = false;
     this.race_selected_128 = false;
+    this.race_selected_256 = false;
 
   }
 
@@ -272,17 +279,20 @@ export class DemographicsComponent implements OnInit {
       if(payLoad.demo_128 ){
         race = race + 128;
       }
+      if(payLoad.demo_256 ){
+        race = race + 256;
+      }
 
       if(race == 0){
         this.isRaceMissing = true;
         return;
       }
-/*
+
       if (isNaN(payLoad.demo_age)) {
         this.isAgeValid = false;
         return;
       }
-*/      
+            
       var dem = new Demographic();
       dem.age = payLoad.demo_age;
       dem.drive = payLoad.demo_drive;

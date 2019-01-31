@@ -15,8 +15,10 @@ import { IntroComponent } from './intro/intro.component';
 import { PortalComponent } from './portal/portal.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { CatService } from './cat.service';
+import { IRTService } from './irt.service';
 import { MongoDbService } from './mongo-db.service';
 import { AppRoutingModule } from './/app-routing.module';
+import { FinishComponent } from './finish/finish.component';
 
 
 
@@ -28,7 +30,8 @@ import { AppRoutingModule } from './/app-routing.module';
     AssessmentComponent,
     IntroComponent,
     PortalComponent,
-    DashboardComponent
+    DashboardComponent,
+    FinishComponent
   ],
   imports: [
     BrowserModule,
@@ -37,7 +40,7 @@ import { AppRoutingModule } from './/app-routing.module';
     HttpClientModule,
     AppRoutingModule
   ],
-  providers: [CatService,MongoDbService,appStoreProviders, { provide: 'Window',  useValue: window }],
+  providers: [CatService,IRTService,MongoDbService,appStoreProviders, { provide: 'Window',  useValue: window }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

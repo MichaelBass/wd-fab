@@ -3,7 +3,7 @@
 <div style="text-align:center"> 
 
 <div class="section">
-	<label class="label-default2">Are you male or female?</label>
+	<p class="bg-info"><label class="label-default2">Are you male or female?</label></p>
 	<div class="answerset" ngbRadioGroup >
     <label ngbButtonLabel class="choices">
     	<input ngbButton type="radio" [(ngModel)]="demo.gender" [value]="1" formControlName="demo_gender" required > Male 
@@ -18,20 +18,20 @@
 </div>
 
 <div class="section">
-    <label class="label-default2">How old are you? (Please enter numbers only.)</label>
+    <p class="bg-info"><label class="label-default2">How old are you? (Please enter numbers only.)</label></p>
     	<div class="answerset">
-      	<input [(ngModel)]="demo.age" placeholder="Age" formControlName="demo_age" required>
+      	<input [(ngModel)]="demo.age" class="form-control" placeholder="Age" formControlName="demo_age" required>
   		</div>
-<!--
+
     <div *ngIf="form.controls.demo_age.invalid && (form.controls.demo_age.dirty || form.controls.demo_age.touched)" class="alert alert-danger">
         <div *ngIf="form.controls.demo_age.errors" class="alert alert-danger">  age is required. </div>         
     </div> 
     <div *ngIf="!isAgeValid" class="alert alert-danger">  age must be a number. </div>
--->
+
 </div>
 
 <div class="section">
-	<label class="label-default2">I usually use a walking aid (cane, crutches, walker)</label>
+	<p class="bg-info"><label class="label-default2">I usually use a walking aid (cane, crutches, walker)</label></p>
 	<div class="answerset" ngbRadioGroup >
     <label ngbButtonLabel class="choices">
     	<input ngbButton type="radio" [(ngModel)]="demo.walking" [value]="1" formControlName="demo_walking" required> All the time
@@ -46,7 +46,7 @@
 </div>
 
 <div class="section">
-	<label class="label-default2">I usually use a manual wheelchair or power wheelchair or a scooter to get around.</label>
+	<p class="bg-info"><label class="label-default2">I usually use a manual wheelchair or power wheelchair or a scooter to get around.</label></p>
 	<div class="answerset" ngbRadioGroup >
     <label ngbButtonLabel class="choices">
     	<input ngbButton type="radio" [(ngModel)]="demo.wc" [value]="1" formControlName="demo_wc" required> All the time; I never walk
@@ -61,7 +61,7 @@
 </div>
 
 <div class="section">
-    <label class="label-default2">What is your race? (Please check all that apply):</label>
+    <p class="bg-info"><label class="label-default2">What is your race? (Please check all that apply):</label></p>
     <div *ngIf="isRaceMissing" class="alert alert-danger">  race is required. </div>
     <div class="answerset" >
 
@@ -82,6 +82,9 @@
         <input type="checkbox" [checked]="race_selected_1" formControlName="demo_1"> White
     </label></li>
     <li><label class="choices">
+        <input type="checkbox" [checked]="race_selected_256" formControlName="demo_256"> Hispanic
+    </label></li>
+    <li><label class="choices">
         <input type="checkbox" [checked]="race_selected_32" formControlName="demo_32"> Don't know
     </label></li>
     <li><label class="choices">
@@ -99,14 +102,14 @@
     </div>
     -->
     <li><label class="choices">
-        <input [(ngModel)]="demo.other" placeholder="If other, please specify" formControlName="demo_other"> <br/>
+        <input [(ngModel)]="demo.other" class="form-control" placeholder="If other, please specify" formControlName="demo_other"> <br/>
     </label></li>
     </ul> 
     </div>
 </div> 
 
 <div class="section">
-    <label class="label-default2">Do you currently drive a car?</label>
+    <p class="bg-info"><label class="label-default2">Do you currently drive a car?</label></p>
     <div class="answerset" ngbRadioGroup >
     <label ngbButtonLabel class="choices">
         <input ngbButton type="radio" [(ngModel)]="demo.drive" [value]="1" formControlName="demo_drive" required> Yes
@@ -118,7 +121,7 @@
 </div>
 
 <div class="section">
-    <label class="label-default2">Do you currently use a bus, train or subway to get around?</label>
+    <p class="bg-info"><label class="label-default2">Do you currently use a bus, train or subway to get around?</label></p>
     <div class="answerset" ngbRadioGroup >
     <label ngbButtonLabel class="choices">
         <input ngbButton type="radio" [(ngModel)]="demo.public_transportation" [value]="1" formControlName="demo_public_transportation" required> Yes
@@ -130,12 +133,12 @@
 </div>
 
 <div class="section">
-<button type="submit" [disabled]="form.invalid" class="btn btn-primary" >Submit</button>
-<label (click)="onClear()" class="btn btn-primary"> Clear </label>
+<button type="submit" [disabled]="form.invalid" class="btn btn-primary btn-lg btn-block" >Submit</button>
+<label (click)="onClear()" class="btn btn-primary btn-lg btn-block"> Clear </label>
 </div> 
 
-<a routerLink="/intro">Introduction</a>
-<p>Message - <label class="label label-primary">{{message}}</label></p>
+ <label *ngIf="message" class="text-danger"><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span> {{message}}</label> 
+
 </div>
 </form>
 </div>
