@@ -47,6 +47,13 @@ export class AssessmentComponent implements OnInit {
 
 	getItem(): void {
 
+		this.clear = false;
+		this.item = this.catService.getNextItemSync();
+		if(this.item  == null){
+			this.router.navigate(['/finish','The assessment is complete.']);
+		}
+
+		/*
 		this.catService.getNextItem().subscribe(
 			data => { 
 				this.clear = false;
@@ -57,6 +64,7 @@ export class AssessmentComponent implements OnInit {
 			
 			}
 		);
+		*/
 	}
 
 	onSelect(map: Map): void {
@@ -72,6 +80,24 @@ export class AssessmentComponent implements OnInit {
 	}
 	
 	getNextItem(){
+
+		this.clear = false;
+		this.item = this.catService.getNextItemSync();
+		if( this.item== null || this.item.ID == undefined ){
+
+			this.user = this.store.getState().user;
+		    let assessment2 = this.user.assessments.filter((a) => a.Finished == null); // array of current assessment
+		    if(assessment2.length > 0){
+		    	this.getItem();
+		    } else{
+		    	this.router.navigate(['/finish','The assessment is complete.']);
+		    }
+			
+		}
+
+
+
+		/*
 		this.catService.getNextItem().subscribe(
 			data => { 
 				this.clear = false;
@@ -89,14 +115,22 @@ export class AssessmentComponent implements OnInit {
 				}
 			}
 		)
+		*/
 	}
 
 	calculateEstimate(): void{
+
+
+		var _result = this.catService.calculateEstimateSync();
+		this.user.results.push(_result);
+		this.store.dispatch(CounterActions.create_user(this.user));
+		this.getNextItem();
+		
+		/*
 		this.catService.calculateEstimate().subscribe(
 			data => { 
 
 				var _result = data;
-
 				this.mongodbService.addResult(this.user._id, _result).subscribe(
 					data2=> {
 						this.user.results.push(_result);
@@ -105,9 +139,9 @@ export class AssessmentComponent implements OnInit {
 					},
       				err => {console.log("Error adding Results");}
 				)
-				
 			}
 		)
+		*/
 	}
 	
 	getResponse(): void {
@@ -123,6 +157,12 @@ export class AssessmentComponent implements OnInit {
 		this.clear = true;
 		this.selectedMap = null;
 
+		this.user.responses.push(this.response);
+		this.store.dispatch(CounterActions.create_user(this.user));
+		this.calculateEstimate();
+
+
+		/*
     	this.mongodbService.addResponse(this.user._id, this.response).subscribe(
       		result=> {
       			this.user.responses.push(this.response);
@@ -130,7 +170,8 @@ export class AssessmentComponent implements OnInit {
       			this.calculateEstimate();
       		},
       		err => {console.log("Error adding Responses");}
-    	)	
+    	)
+    	*/	
 	}
 
 }

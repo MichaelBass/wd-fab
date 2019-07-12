@@ -1,6 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MongoDbService } from '../mongo-db.service';
 import { User } from '../user';
+import { ProxyUser } from '../proxy_user';
 import { Admin } from '../admin';
 
 import {ActivatedRoute} from "@angular/router";
@@ -20,7 +21,7 @@ export class DashboardComponent implements OnInit {
 
   constructor(@Inject(AppStore) private store: Store<AppState>, private mongodbService: MongoDbService, private route: ActivatedRoute, private router: Router) {} 
 
-	people:User[];
+	people:ProxyUser[];
   person:User;
 
   admin: Admin;
@@ -38,7 +39,7 @@ export class DashboardComponent implements OnInit {
     if(this.admin._id == "0"){
        this.router.navigate(['/login','Please login first']);
     } else {
-      this.searchUsers();
+      this.searchProxyUsers();
     }
 
     this.route.params.subscribe(params => {
@@ -50,6 +51,15 @@ export class DashboardComponent implements OnInit {
 
   getUsers(){
     this.mongodbService.getAllPeople().subscribe(  
+        fields => {
+        this.message = "returning " + fields.length + " users.";
+        this.people = fields; 
+      }, err => {console.log("Error getting all people");}
+    );
+  }
+
+  searchProxyUsers(){
+    this.mongodbService.searchProxyPerson(this.admin.sponsor_code).subscribe(  
         fields => {
         this.message = "returning " + fields.length + " users.";
         this.people = fields; 
@@ -69,12 +79,13 @@ export class DashboardComponent implements OnInit {
   findUser() {
     this.mongodbService.findPerson(this._id).subscribe(  
         fields => {
-        //console.log(fields); 
+        //console.log(fields);
+        this.person = fields; 
       }, err => {console.log("Error finding Person");}
     );  
   }
 
-  updateUser(person:User) {
+  updateUser(person:ProxyUser) {
 
     if(person.oid== "0"){
       this.message = 'oid can not be 0.';
@@ -170,92 +181,109 @@ export class DashboardComponent implements OnInit {
 
   }
 
- exportSummaryData(user:User) {
+ exportSummaryData(user_id:string) {
 
-   //var data_export = " \"" + "Scale" + " \" \t \""  + "Administration Time"  + " \" \t \""  + "Number of Items"  + " \" \t \"" + "Score"  + " \" \t \""  + "Standard Error"  + " \" \n";
-   //var data_export = "Scale" + "\t"  + "Administration Time"  + "\t"  + "Number of Items"  + "\t" + "Score"  + "\t"  + "Standard Error"  + "\n";
-   
-    var data_export = "Scale" + ","  + "Administration Time"  + ","  + "Number of Items"  + "," + "Score"  + ","  + "Standard Error"  + "\n";
-   
-    for (let assessment of user.assessments) {
+    this.mongodbService.findPerson(user_id).subscribe(  
+      fields => {
+        var user = fields;
+  
+       //var data_export = " \"" + "Scale" + " \" \t \""  + "Administration Time"  + " \" \t \""  + "Number of Items"  + " \" \t \"" + "Score"  + " \" \t \""  + "Standard Error"  + " \" \n";
+       //var data_export = "Scale" + "\t"  + "Administration Time"  + "\t"  + "Number of Items"  + "\t" + "Score"  + "\t"  + "Standard Error"  + "\n";
+       
+        var data_export = "Scale" + ","  + "Administration Time"  + ","  + "Number of Items"  + "," + "Score"  + ","  + "Standard Error"  + "\n";
+       
+        for (let assessment of user.assessments) {
 
-      let start:any = new Date(assessment.Started);
-      let end:any = new Date(assessment.Finished);
-      var time = Math.round((end - start)/1000);
+          let start:any = new Date(assessment.Started);
+          let end:any = new Date(assessment.Finished);
+          var time = Math.round((end - start)/1000);
 
-      let time_display:string = "N/A"
-      if(time != 0){
-        time_display = time.toString();
-      }
+          let time_display:string = "N/A"
+          if(time != 0){
+            time_display = time.toString();
+          }
 
-      let filtered_results = user.results.filter((a) => a.oid === assessment.Domain);
-      let _result = filtered_results[filtered_results.length -1];
-      let score = "N/A";
-      let se = "N/A";
-      if(_result != undefined){
-        //score = (Math.floor(_result.score * 10)/10 ).toString();
-        //se = (Math.floor(_result.error * 10)/10 ).toString();
-         score = (50 + Math.round(_result.score * 10)/10 * 10 ).toString();
-         se = (Math.round(_result.error * 10)/10 * 10).toString();
-      }
+          let filtered_results = user.results.filter((a) => a.oid === assessment.Domain);
+          let _result = filtered_results[filtered_results.length -1];
+          let score = "N/A";
+          let se = "N/A";
+          if(_result != undefined){
+            //score = (Math.floor(_result.score * 10)/10 ).toString();
+            //se = (Math.floor(_result.error * 10)/10 ).toString();
+             score = (50 + Math.round(_result.score * 10)/10 * 10 ).toString();
+             se = (Math.round(_result.error * 10)/10 * 10).toString();
+          }
 
 
-     // data_export = data_export +  " \"" + assessment.Domain + " \" \t \""  + time_display  + " \" \t \"" + filtered_results.length.toString()  + " \" \t \"" + score  + " \" \t \"" + se  + " \" \n";
-     // data_export = data_export + assessment.Domain + "\t"  + time_display  + "\t" + filtered_results.length.toString()  + "\t" + score  + "\t" + se  + "\n";
-      data_export = data_export + assessment.Domain + ","  + time_display  + "," + filtered_results.length.toString()  + "," + score  + "," + se  + "\n";
+         // data_export = data_export +  " \"" + assessment.Domain + " \" \t \""  + time_display  + " \" \t \"" + filtered_results.length.toString()  + " \" \t \"" + score  + " \" \t \"" + se  + " \" \n";
+         // data_export = data_export + assessment.Domain + "\t"  + time_display  + "\t" + filtered_results.length.toString()  + "\t" + score  + "\t" + se  + "\n";
+          data_export = data_export + assessment.Domain + ","  + time_display  + "," + filtered_results.length.toString()  + "," + score  + "," + se  + "\n";
 
-    }
+        }
 
-    //https://www.oodlestechnologies.com/blogs/Create-CSV-file-in-Angular2
-    let blob = new Blob(['\ufeff' + data_export], { type: 'text/csv;charset=utf-8;' });
+        //https://www.oodlestechnologies.com/blogs/Create-CSV-file-in-Angular2
+        let blob = new Blob(['\ufeff' + data_export], { type: 'text/csv;charset=utf-8;' });
 
-    let dwldLink = document.createElement("a");
-    let url = URL.createObjectURL(blob);
-    //let isSafariBrowser = navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1;
-    //if (isSafariBrowser) {  //if Safari open in new window to save file with random filename.
-     //   dwldLink.setAttribute("target", "_blank");
-    //}
-      
-    dwldLink.setAttribute("href", url);
-    dwldLink.setAttribute("download", user._id + "Summary.csv");
-    dwldLink.style.visibility = "hidden";
-    document.body.appendChild(dwldLink);
-    dwldLink.click();
-    document.body.removeChild(dwldLink);
+        let dwldLink = document.createElement("a");
+        let url = URL.createObjectURL(blob);
+        //let isSafariBrowser = navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1;
+        //if (isSafariBrowser) {  //if Safari open in new window to save file with random filename.
+         //   dwldLink.setAttribute("target", "_blank");
+        //}
+          
+        dwldLink.setAttribute("href", url);
+        dwldLink.setAttribute("download", user._id + "Summary.csv");
+        dwldLink.style.visibility = "hidden";
+        document.body.appendChild(dwldLink);
+        dwldLink.click();
+        document.body.removeChild(dwldLink);
+
+      } , err => {console.log("Error finding person");}
+    );
   }
 
 
 
-  exportData(user:User) {
+  exportData(user_id:string) {
 
-    var data_export="\n";
-    data_export = data_export + this.csvObject2(user.demo);
-    data_export=data_export + "\n";
-    data_export=data_export + "\n";
-    data_export = data_export + this.csvObject(user.assessments);
-    data_export=data_export + "\n";
-    data_export=data_export + "\n";
-    data_export = data_export + this.csvObject(user.responses);
-    data_export=data_export + "\n";
-    data_export=data_export + "\n";
-    data_export = data_export + this.csvObject(user.results);
+    
+    this.mongodbService.findPerson(user_id).subscribe(  
+      fields => {
+        var user = fields;
 
-    //https://www.oodlestechnologies.com/blogs/Create-CSV-file-in-Angular2
-    let blob = new Blob(['\ufeff' + data_export], { type: 'text/csv;charset=utf-8;' });
+        var data_export="\n";
+        data_export = data_export + this.csvObject2(user.demo);
+        data_export=data_export + "\n";
+        data_export=data_export + "\n";
+        data_export = data_export + this.csvObject(user.assessments);
+        data_export=data_export + "\n";
+        data_export=data_export + "\n";
+        data_export = data_export + this.csvObject(user.responses);
+        data_export=data_export + "\n";
+        data_export=data_export + "\n";
+        data_export = data_export + this.csvObject(user.results);
 
-    let dwldLink = document.createElement("a");
-    let url = URL.createObjectURL(blob);
-    //let isSafariBrowser = navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1;
-    //if (isSafariBrowser) {  //if Safari open in new window to save file with random filename.
-    //    dwldLink.setAttribute("target", "_blank");
-    //}
-      
-    dwldLink.setAttribute("href", url);
-    dwldLink.setAttribute("download", user._id + "Details.csv");
-    dwldLink.style.visibility = "hidden";
-    document.body.appendChild(dwldLink);
-    dwldLink.click();
-    document.body.removeChild(dwldLink);
+        //https://www.oodlestechnologies.com/blogs/Create-CSV-file-in-Angular2
+        let blob = new Blob(['\ufeff' + data_export], { type: 'text/csv;charset=utf-8;' });
+
+        let dwldLink = document.createElement("a");
+        let url = URL.createObjectURL(blob);
+
+        //let isSafariBrowser = navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1;
+        //if (isSafariBrowser) {  //if Safari open in new window to save file with random filename.
+        //    dwldLink.setAttribute("target", "_blank");
+        //}
+          
+        dwldLink.setAttribute("href", url);
+        dwldLink.setAttribute("download", user._id + "Details.csv");
+        dwldLink.style.visibility = "hidden";
+        document.body.appendChild(dwldLink);
+        dwldLink.click();
+        document.body.removeChild(dwldLink);
+
+      } , err => {console.log("Error finding person");}
+    );
+
   }
 
   addUser() {
@@ -272,7 +300,7 @@ export class DashboardComponent implements OnInit {
           }else{
             this.mongodbService.addPerson(this.oid, this.study_code, this.password, this.admin.sponsor_code).subscribe(
               data => { 
-                this.searchUsers(); 
+                this.searchProxyUsers(); 
                 this.oid ='';
                 this.study_code='';
                 this.password='';

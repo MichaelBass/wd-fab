@@ -8,6 +8,191 @@ export class IRTService {
 
 	constructor() {}
 
+	setNormalDistribution(): Array<number> {
+
+		var mean = 0.0;
+		var stdev = 1.0;
+		var min = -6.0;
+		var max = 6.0;
+		var interval = (max - min)/100.0;
+
+		var QuadraturePoints = new Array();
+		var Distrib = new Array();
+		for(var k=0; k < 101; k++){
+			QuadraturePoints.push( min + interval * k );
+		}
+
+		for(var k=0; k < QuadraturePoints.length; k++){
+			var tmp = (QuadraturePoints[k] - mean) / stdev;
+			Distrib.push( 1 / Math.sqrt(2 * Math.PI) * Math.exp(-0.5 * tmp * tmp) );
+		}
+
+		return Distrib;
+
+	}
+
+	setUniformDistribution(): Array<number> {
+
+		var min = -6.0;
+		var max = 6.0;
+		var interval = (max - min)/100.0;
+
+		var QuadraturePoints = new Array();
+		var Distrib = new Array();
+		for(var k=0; k < 101; k++){
+			QuadraturePoints.push( min + interval * k );
+		}
+
+		for(var k=0; k < QuadraturePoints.length; k++){
+			Distrib.push( 0.0 );
+		}
+
+		return Distrib;
+
+	}
+
+	getEAPLog(items: Array<Item>): number{
+
+		var initialLikelyhood = this.setUniformDistribution();
+		var likelyhood = new Array();
+
+		var min = -6.0;
+		var max = 6.0;
+		var interval = (max - min)/100.0;
+
+		var QuadraturePoints = new Array();
+		for(var k=0; k < initialLikelyhood.length; k++){
+			QuadraturePoints.push( min + interval * k );
+			likelyhood[k] = initialLikelyhood[k];
+		}
+
+
+		for(var i = 0 ; i < items.length; i++){
+			var slope = parseFloat(items[i].Slope);
+			var maps = items[i].Maps;
+			var responseCategory = this.getAdjustedCategory(maps, items[i].AnsweredItemResponseOID);
+
+			var responseValue = 0;
+
+			for(var m=0; m < maps.length; m++){
+				if(items[i].AnsweredItemResponseOID == maps[m].ItemResponseOID ){
+					responseValue = parseInt(maps[m].Value);
+					break;				
+				}
+			}
+
+			for(var j=0; j < QuadraturePoints.length; j++){
+				var prob = this.calculateCumulativeProbability(slope, QuadraturePoints[j], maps);
+				likelyhood[j] = likelyhood[j] +  Math.log((prob[responseValue -1] - prob[responseValue] ));
+			}
+		}
+
+		// 2019-07-10 calculate Maximum of LogLikelyhood
+		var likelyMax = 0.0;
+		for(var j=0; j < QuadraturePoints.length; j++){
+			if(likelyhood[j] > likelyMax){
+				likelyMax = likelyhood[j];
+			}
+		}
+
+		for(var j=0; j < QuadraturePoints.length; j++){
+			likelyhood[j] = likelyhood[j] - likelyMax - 0.5/(3.0*3.0*QuadraturePoints[j]*QuadraturePoints[j]);
+		}
+
+
+		var Z = 0.0;
+		for(var j=0; j < likelyhood.length; j++){
+
+			if(j==0){
+				Z = Z  + Math.exp(likelyhood[j]);
+			} else if(j == likelyhood.length-1){
+				Z = Z  + Math.exp(likelyhood[j]);
+			}else{
+				Z = Z  + Math.exp(likelyhood[j]) * 2.0;
+			}
+		}
+
+
+		var m = 0.0
+		for(var j=0; j < likelyhood.length; j++){
+			if(j==0){
+				m = m  + QuadraturePoints[j] * Math.exp(likelyhood[j]);
+			} else if(j == likelyhood.length-1){
+				m = m  + QuadraturePoints[j] * Math.exp(likelyhood[j]);
+			}else{
+				m = m  + 2.0 * QuadraturePoints[j] * Math.exp(likelyhood[j]);
+			}
+		}
+		
+		// 2019-07-10 
+
+		return  m/Z;		
+/*
+		var likelyhoodSum = 0.0;
+		var likelyhoodWeightedSum = 0.0;
+		for(var j=0; j < likelyhood.length; j++){
+			likelyhoodSum = likelyhoodSum +  likelyhood[j];
+			likelyhoodWeightedSum = likelyhoodWeightedSum  + (likelyhood[j]*QuadraturePoints[j]);
+		}
+
+		return -1.0 * likelyhoodWeightedSum/likelyhoodSum;
+*/		
+	}
+
+	getEAP(items: Array<Item>): number{
+
+		var initialLikelyhood = this.setNormalDistribution();
+		var likelyhood = new Array();
+
+		var min = -6.0;
+		var max = 6.0;
+		var interval = (max - min)/100.0;
+
+		var QuadraturePoints = new Array();
+		for(var k=0; k < initialLikelyhood.length; k++){
+			QuadraturePoints.push( min + interval * k );
+			likelyhood[k] = initialLikelyhood[k];
+		}
+
+
+		for(var i = 0 ; i < items.length; i++){
+			var slope = parseFloat(items[i].Slope);
+			var maps = items[i].Maps;
+			var responseCategory = this.getAdjustedCategory(maps, items[i].AnsweredItemResponseOID);
+
+			var responseValue = 0;
+
+			for(var m=0; m < maps.length; m++){
+				if(items[i].AnsweredItemResponseOID == maps[m].ItemResponseOID ){
+					responseValue = parseInt(maps[m].Value);
+					break;				
+				}
+				//console.log(m + " : " + maps[m].Value + " : " + maps[m].ItemResponseOID + " : " +  responseCategory + " : " + maps[m].ResponseOption  + " : " + maps[m].Position + " : " + items[i].AnsweredItemResponseOID);
+			}
+
+			for(var j=0; j < QuadraturePoints.length; j++){
+				var prob = this.calculateCumulativeProbability(slope, QuadraturePoints[j], maps);
+
+				// TODO:  need to get the correct response probabilty based on response option.
+				// IS IT prob[]  or maybe Likelyhood_item.
+
+				//var responseProb = this.Likelyhood_item (slope, prob, responseCategory );
+				//likelyhood[j] = likelyhood[j] * responseProb;
+				//likelyhood[j] = likelyhood[j] * (prob[responseCategory -1] - prob[responseCategory] );
+				likelyhood[j] = likelyhood[j] * (prob[responseValue -1] - prob[responseValue] );
+			}
+		}
+
+
+		var likelyhoodSum = 0.0;
+		var likelyhoodWeightedSum = 0.0;
+		for(var j=0; j < likelyhood.length; j++){
+			likelyhoodSum = likelyhoodSum +  likelyhood[j];
+			likelyhoodWeightedSum = likelyhoodWeightedSum  + (likelyhood[j]*QuadraturePoints[j]);
+		}
+
+		return likelyhoodWeightedSum/likelyhoodSum;
+	}
 
   	information2 (slope: number, cumulativeP: Array<number>) : number {
    		var sum = 0.0;

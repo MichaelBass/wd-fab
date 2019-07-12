@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 
 import { User } from './user';
+import { ProxyUser } from './proxy_user';
 import { Demographic } from './demographic';
 import { Response } from './response';
 import { Result } from './result';
@@ -43,15 +44,25 @@ export class MongoDbService {
 		return this.http.get<User[]>(`${this.API}/users`).catch((err) =>{return Observable.throw(err)});
 	}
 
+  // Get all users from the API
+  getAllProxyPeople(): Observable<ProxyUser[]> {
+    return this.http.get<ProxyUser[]>(`${this.API}/proxyusers`).catch((err) =>{return Observable.throw(err)});
+  }
+
   // find a people in the API
   findPerson(id: string): Observable<User> {
-    return this.http.get<User>(`${this.API}/search_users/` + id).catch((err) =>{return Observable.throw(err)});
+    return this.http.get<User>(`${this.API}/users/` + id).catch((err) =>{return Observable.throw(err)});
   }
 
 	// find a people in the API by sponsor-code
 	searchPerson(sponsor_code: string): Observable<User[]> {
 		return this.http.get<User[]>(`${this.API}/search_users/` + sponsor_code).catch((err) =>{return Observable.throw(err)});
 	}
+
+  // find a people in the API by sponsor-code
+  searchProxyPerson(sponsor_code: string): Observable<ProxyUser[]> {
+    return this.http.get<ProxyUser[]>(`${this.API}/search_proxyusers/` + sponsor_code).catch((err) =>{return Observable.throw(err)});
+  }
 
   // log a person in the API
   loginPerson(study_code: string, password:string): Observable<User[]> {
@@ -72,33 +83,62 @@ export class MongoDbService {
       return this.http.put<User>(`${this.API}/demo/`+ _id, dem).catch((err) =>{return Observable.throw(err)});
 	}
 
+  updateUserAssessment(_id: String, user: User): Observable<User> {
+      return this.http.put<User>(`${this.API}/userAssessment/`+ _id, user).catch((err) =>{return Observable.throw(err)});
+  }
+
   loadForms(_id: String, forms: Array<Form>): Observable<User> {
     return this.http.put<User>(`${this.API}/forms/`+ _id, forms).catch((err) =>{return Observable.throw(err)});
   }
 
 	updateAssessments(user: User): Observable<User> {
 		
+    /*
+4 Cognition & Communication CC
+5 Resilience & Sociability  RS
+6 Self-Regulation SR
+7 Mood & Emotions ME
+
+
+0 Basic Mobility  BM
+1 Upper Body Function UBF
+2 Fine Motor Function FMF
+3 Community Mobility  CM
+8 Wheelchair  WC
+    */
 		
     var startDomain = Math.floor(Math.random() * Math.floor(2));
     // startDomain = 1; // Hard-code to start physical function 
 
     	var behavior : Array<Assessment> = [];
+      /*
     	behavior.push({"ID":0,"Domain":"Cognition and Communication","Active":false, "Started":null, "Finished":null});
       behavior.push({"ID":1,"Domain":"Resilience/Sociability","Active":false, "Started":null, "Finished":null});
       behavior.push({"ID":2,"Domain":"Self-Regulation","Active":false, "Started":null, "Finished":null});
-      behavior.push({"ID":3,"Domain":"Mood and Emotions","Active":false, "Started":null, "Finished":null});     
-
+      behavior.push({"ID":3,"Domain":"Mood and Emotions","Active":false, "Started":null, "Finished":null});
+      */
+      behavior.push({"ID":4,"Domain":"Cognition & Communication","Active":false, "Started":null, "Finished":null});
+      behavior.push({"ID":5,"Domain":"Resilience & Sociability","Active":false, "Started":null, "Finished":null});
+      behavior.push({"ID":6,"Domain":"Self-Regulation","Active":false, "Started":null, "Finished":null});
+      behavior.push({"ID":7,"Domain":"Mood & Emotions","Active":false, "Started":null, "Finished":null});     
       behavior = this.shuffle(behavior);
 
     	var phy : Array<Assessment> = [];
+      /*
     	phy.push({"ID":4,"Domain":"Basic Mobility","Active":false, "Started":null, "Finished":null});
     	phy.push({"ID":5,"Domain":"Upper Body Function","Active":false, "Started":null, "Finished":null});
     	phy.push({"ID":6,"Domain":"Fine Motor Function","Active":false, "Started":null, "Finished":null});
     	phy.push({"ID":7,"Domain":"Community Mobility (Driving)","Active":false, "Started":null, "Finished":null});
     	phy.push({"ID":8,"Domain":"Community Mobility (Public Transportation)","Active":false, "Started":null, "Finished":null});
     	phy.push({"ID":9,"Domain":"Wheelchair","Active":false, "Started":null, "Finished":null});
+      */
 
-
+          
+      phy.push({"ID":0,"Domain":"Basic Mobility","Active":false, "Started":null, "Finished":null});
+      phy.push({"ID":1,"Domain":"Upper Body Function","Active":false, "Started":null, "Finished":null});
+      phy.push({"ID":2,"Domain":"Fine Motor Function","Active":false, "Started":null, "Finished":null});
+      phy.push({"ID":3,"Domain":"Community Mobility","Active":false, "Started":null, "Finished":null});
+      phy.push({"ID":8,"Domain":"Wheelchair","Active":false, "Started":null, "Finished":null});
 
     	if(user.demo.wc == 2){
     		phy.splice(5,1);

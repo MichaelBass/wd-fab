@@ -83,10 +83,16 @@ verifyAssessments():boolean{
       return true;
     } 
 
-    let assessment2 = this.user.assessments.filter((a) => a.Finished == null); // array of current assessment
+    let assessment2 = this.user.assessments.filter( (a) => (a.Finished == null && a.Started == null) ); // array of current assessment
     if(assessment2.length > 0){
+
+
+      assessment2[0].Active = true;
+      this.store.dispatch(CounterActions.create_user(this.user));
+
       this.message = 'returning user not started yet.';
-      this.nextPage = '/intro';
+      //this.nextPage = '/intro';
+      this.nextPage = '/assessment';
       return true;
     } 
 

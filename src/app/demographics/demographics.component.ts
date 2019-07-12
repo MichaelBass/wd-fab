@@ -181,6 +181,8 @@ export class DemographicsComponent implements OnInit {
       bitsum = bitsum + 64;
       //console.log("gender:refused");
     }
+
+    /*
     if (this.user.demo.age >= 55){
       //Age >= 55
       bitsum = bitsum + 128;
@@ -196,6 +198,8 @@ export class DemographicsComponent implements OnInit {
       bitsum = bitsum + 512;
       //console.log("no age");
     }
+    */
+
     if ((this.user.demo.race & 1) != 1){
       //Race <> White
       bitsum = bitsum + 1024;

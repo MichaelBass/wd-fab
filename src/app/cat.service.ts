@@ -35,7 +35,9 @@ export class CatService {
 		let filtered_results = user.results.filter((a) => a.oid === assessment[0].Domain);
 
 		// determine if need to get the next assessment
-		if ( (filtered_results.length > 5 && filtered_results[ filtered_results.length -1 ].error < 0.3873) || filtered_results.length >= 10 ) { 
+		if ( (filtered_results.length > 5 && filtered_results[ filtered_results.length -1 ].error < 0.3873) || filtered_results.length >= 10 ) {
+
+
 			for(var i = 0; i < user.assessments.length; i++){
 				if(user.assessments[i].Active == true){
 
@@ -50,24 +52,26 @@ export class CatService {
 					break;
 				}
 			}
+			
+	    	this.mongodbService.updateUserAssessment(user._id, user).subscribe(
+	      		data=>{
+	      			this.store.dispatch(CounterActions.create_user(data));
+	      		}
+	    	)
+
 		}
 
 		return assessment;
 
 	}
 
-	getNextItem(): Observable<any> {
+	getNextItemSync(): Item {
 
 		var user = this.store.getState().user;
 		let assessment = this.setAssessments(user);
 
 		if(assessment == null){
-	    	return this.mongodbService.startAssessment(user._id, user.assessments).map(
-	      		data=>{
-	      			this.store.dispatch(CounterActions.create_user(data));
-	      			return new EmptyObservable<Item>();
-	      		}
-	    	)
+			return null;
 		}
 
 		if(assessment[0].Started == null){
@@ -76,42 +80,32 @@ export class CatService {
 		}
 
 		assessment[0].Active = true;
+		
+		this.store.dispatch(CounterActions.create_user(user));
 
-    	return this.mongodbService.startAssessment(user._id, user.assessments).map(
-      		data=>{
-      			this.store.dispatch(CounterActions.create_user(data));
-      			let forms = user.forms.filter( (e) => e.Domain === assessment[0].Domain);
+		let forms = user.forms.filter( (e) => e.Domain === assessment[0].Domain);
 
-      			if(forms.length == 0){
-      				return new EmptyObservable<Item>();
-      			}else{
-					var _item = this.calculateNextItem(forms[0]);
-					if(_item == null){
+		if(forms.length == 0){
+			return null;
+		}else{
+			var _item = this.calculateNextItem(forms[0]);
+			if(_item == null){
+				// clear assessment  TODO:  need to replace these assessment with the User.
+				assessment[0].Active = false;
+				assessment[0].Finished = Date.now();
 
-						// clear assessment  TODO:  need to replace these assessment with the User.
-						assessment[0].Active = false;
-						assessment[0].Finished = Date.now();
+				let assessment2 = user.assessments.filter( (a) => a.Started == null );
+				assessment2[0].Active = true;
 
-
-						let assessment2 = user.assessments.filter( (a) => a.Started == null );
-						assessment2[0].Active = true;
-
-
-            			user.assessments = user.assessments.map(obj => assessment.find(o => o.Domain === obj.Domain) || obj);
-            			user.assessments = user.assessments.map(obj => assessment2.find(o => o.Domain === obj.Domain) || obj);
-            			this.store.dispatch(CounterActions.create_user(user));
-
-						return new EmptyObservable<Item>();
-
-					}else{
-						return _item;
-					}
-					
-				}	
-      		}
-    	)
+				user.assessments = user.assessments.map(obj => assessment.find(o => o.Domain === obj.Domain) || obj);
+				user.assessments = user.assessments.map(obj => assessment2.find(o => o.Domain === obj.Domain) || obj);
+				this.store.dispatch(CounterActions.create_user(user));	
+			}
+			return _item;
+		}
 
   	}
+
 
   	calculateNextItem(form: Form) : Item {
 
@@ -163,6 +157,35 @@ export class CatService {
 		
   	}
 
+
+
+
+
+  	calculateEstimateSync() : Result {
+
+  		var user = this.store.getState().user;
+
+		let assessment = user.assessments.filter((a) => a.Active === true);
+		let forms = user.forms.filter( (e) => e.Domain === assessment[0].Domain);
+		let responseProperties = new Array<Item>();
+
+		for(var i = 0 ; i < user.responses.length; i++){
+			let item = forms[0].Items.filter((a) => a.ID === user.responses[i].ID)
+			if(item.length > 0){
+				item[0].AnsweredItemResponseOID = user.responses[i].ItemResponseOID;
+
+				if( !this.skipScoring(item[0]) ){
+					responseProperties.push(item[0]);
+				}
+			}
+		}
+
+		var ItemID = user.responses[user.responses.length -1].ID;
+		
+		return this.calculateGRM(responseProperties, forms[0].Domain, ItemID);
+  	}
+
+
   	calculateEstimate() : Observable<Result> {
 
   		var user = this.store.getState().user;
@@ -188,6 +211,7 @@ export class CatService {
 				var ItemID = data[data.length -1].ID;
 				
 				return this.calculateGRM(responseProperties, forms[0].Domain, ItemID);
+				//return this.calculateGRM_EAP(responseProperties, forms[0].Domain, ItemID);
 			}
 		);
 
@@ -205,8 +229,47 @@ export class CatService {
 
   	}
 
+  	calculateGRM_EAP(items: Array<Item>, FormID: string, ItemID: string): Result {
+
+
+  		if(items.length == 0){
+  			return new Result();
+  		}
+
+		var user = this.store.getState().user;
+		
+		var EAP = this.EAP(items);
+		var SE = this.irt.L2_sum(items, EAP);
+
+		var _result = new Result();
+		_result.oid = FormID;
+		_result.ItemID = ItemID;
+		_result.score = EAP;
+		_result.error = 1.0/Math.sqrt(-1.0*SE);
+
+		_result.fit = this.person_fit(items, EAP);
+
+  		return _result;
+
+  	}
+
+  	EAP(items: Array<Item>): number{
+
+  		var rtn = 0.0;
+		for(var i = 0 ; i < items.length; i++){
+			//var cumulativeP = this.irt.calculateCumulativeProbability(parseFloat(items[i].Slope), est, items[i].Maps);
+	
+			//var adjustCategory = this.irt.getAdjustedCategory(items[i].Maps, items[i].AnsweredItemResponseOID);
+
+		}
+  		return rtn;
+  	}
+
   	calculateGRM(items: Array<Item>, FormID: string, ItemID: string): Result {
 
+		//var distro = this.irt.setNormalDistribution();
+		var EAP = this.irt.getEAP(items);
+		var EAPLog = this.irt.getEAPLog(items);
 
   		if(items.length == 0){
   			return new Result();
@@ -216,16 +279,19 @@ export class CatService {
 		
 		var bisect_bias = this.bisectionMethod_bias(items, FormID);
 		var newton_rhapson = this.newton_rhapson(items, bisect_bias);
-		var SE = this.irt.L2_sum(items, newton_rhapson[0]);
+		//var SE = this.irt.L2_sum(items, newton_rhapson[0]);
+		var SE = this.irt.L2_sum(items, EAP);
 
 		var _result = new Result();
 		_result.oid = FormID;
 		_result.ItemID = ItemID;
-		_result.score = newton_rhapson[0];
+		// _result.score = newton_rhapson[0];
+		_result.score = EAP;
 		_result.error = 1.0/Math.sqrt(-1.0*SE);
 
-		_result.fit = this.person_fit(items, newton_rhapson[0]);
-
+		//_result.fit = this.person_fit(items, newton_rhapson[0]);
+		_result.fit = this.person_fit(items, EAP);
+		console.log(items.length + ":" + EAP + ":" + newton_rhapson[0] + ":" + EAPLog);
   		return _result;
 
   	}
@@ -444,5 +510,79 @@ export class CatService {
     	return this.mongodbService.loadForms(user._id, forms);
 
 	}
+
+
+
+
+	getNextItem(): Observable<any> {
+
+		var user = this.store.getState().user;
+		let assessment = this.setAssessments(user);
+
+		if(assessment == null){
+
+	    	return this.mongodbService.startAssessment(user._id, user.assessments).map(
+	      		data=>{
+	      			this.store.dispatch(CounterActions.create_user(data));
+	      			return new EmptyObservable<Item>();
+	      		}
+	    	)
+		}
+
+		if(assessment[0].Started == null){
+			assessment[0].Started = Date.now();
+			//this._item_index = -1;
+		}
+
+		assessment[0].Active = true;
+ 
+    	return this.mongodbService.startAssessment(user._id, user.assessments).map(
+      		data=>{
+      			this.store.dispatch(CounterActions.create_user(data));
+
+
+      			let forms = user.forms.filter( (e) => e.Domain === assessment[0].Domain );
+
+      			if(forms.length == 0){
+      				return new EmptyObservable<Item>();
+      			}else{
+					var _item = this.calculateNextItem(forms[0]);
+					if(_item == null){
+
+						// clear assessment  TODO:  need to replace these assessment with the User.
+						assessment[0].Active = false;
+						assessment[0].Finished = Date.now();
+
+
+						let assessment2 = user.assessments.filter( (a) => a.Started == null );
+						assessment2[0].Active = true;
+
+            			user.assessments = user.assessments.map(obj => assessment.find(o => o.Domain === obj.Domain) || obj);
+            			user.assessments = user.assessments.map(obj => assessment2.find(o => o.Domain === obj.Domain) || obj);
+            			this.store.dispatch(CounterActions.create_user(user));
+
+						return new EmptyObservable<Item>();
+
+					}else{
+						return _item;
+					}
+					
+				}
+
+      		}
+    	)
+  	}
+
+
+
+
+
+
+
+
+
+
+
+
 
 }

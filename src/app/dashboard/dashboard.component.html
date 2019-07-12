@@ -18,8 +18,8 @@
     <td> <span *ngIf="person.forms">{{person.forms[0]}},{{person.forms[1]}},{{person.forms[2]}},{{person.forms[3]}},{{person.forms[4]}},{{person.forms[5]}}</span></td>
  -->
     <td><button (click)="gotoLogin()"class="btn btn-default">Start Assessment </button></td>
-    <td><button (click)="exportSummaryData(person)"class="btn btn-default">Summary Data </button></td> 
-    <td><button (click)="exportData(person)"class="btn btn-default">Export Data </button></td>   
+    <td><button (click)="exportSummaryData(person._id)"class="btn btn-default">Summary Data </button></td> 
+    <td><button (click)="exportData(person._id)"class="btn btn-default">Export Data </button></td>   
     <td><button (click)="updateUser(person)"class="btn btn-default">Update </button></td>
     <td><button (click)="deleteUser(person._id)"class="btn btn-default">Delete </button></td>
   </tr>
