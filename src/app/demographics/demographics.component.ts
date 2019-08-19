@@ -112,7 +112,23 @@ export class DemographicsComponent implements OnInit {
 
   updateDemo(dem:Demographic) {
 
-    this.mongodbService.updateDemo(this.user._id, dem).subscribe(
+    this.mongodbService.saveDemo(this.user.oid,this.user.sponsor_code, dem).subscribe(
+      data => {
+        this.user = data;
+        this.store.dispatch(CounterActions.create_user(data));
+
+        this.message = data.message;
+        this.router.navigate(['/intro']);
+      },
+      err => {
+        this.message = "Error saving demographics";
+      }
+
+    )
+
+
+/*
+    this.mongodbService.updateDemo(this.user.oid,this.user.sponsor_code, dem).subscribe(
       user => {
         this.user = user;
         this.updateAssessments();
@@ -124,14 +140,13 @@ export class DemographicsComponent implements OnInit {
       }
 
     )
-    
+*/    
   }
-
+/*
   updateAssessments(){
 
     this.mongodbService.updateAssessments(this.user).subscribe(
       data => {
-        // console.log(data.message);
         this.user = data;
         this.calculate_exlusion_code();
         this.loadForms();
@@ -145,13 +160,12 @@ export class DemographicsComponent implements OnInit {
   loadForms(){
     this.catService.loadForms(this.user).subscribe(
       data => {
-        // console.log(data.message);
         this.user = data;
         this.store.dispatch(CounterActions.create_user(data));
       }
     )
   }
-
+*/
   calculate_exlusion_code(){
 
     var bitsum = 0;
@@ -214,6 +228,13 @@ export class DemographicsComponent implements OnInit {
       //Race is not provided
       bitsum = bitsum + 4096;
       //console.log("Race not provided");
+    }
+
+    if(this.user.demo.drive == 0){
+      bitsum = bitsum + 8192;
+    }
+    if(this.user.demo.public_transportation == 0){
+      bitsum = bitsum + 16384;
     }
 
     this.user.exlusion_code = bitsum;

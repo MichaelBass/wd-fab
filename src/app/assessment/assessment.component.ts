@@ -1,7 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import {Router} from "@angular/router";
 import { Observable } from 'rxjs/Observable';
-import { MongoDbService } from '../mongo-db.service';
 import { CatService } from '../cat.service';
 import { Item } from '../item';
 import { Map } from '../map';
@@ -30,7 +29,7 @@ export class AssessmentComponent implements OnInit {
 
 	clear: boolean;
 
-	constructor(@Inject(AppStore) private store: Store<AppState>, private catService: CatService, private router: Router, private mongodbService: MongoDbService) { }
+	constructor(@Inject(AppStore) private store: Store<AppState>, private catService: CatService, private router: Router) { }
 
 	ngOnInit() {
 
@@ -131,7 +130,7 @@ export class AssessmentComponent implements OnInit {
 			data => { 
 
 				var _result = data;
-				this.mongodbService.addResult(this.user._id, _result).subscribe(
+				this.mongodbService.addResult(this.user, _result).subscribe(
 					data2=> {
 						this.user.results.push(_result);
 						this.store.dispatch(CounterActions.create_user(this.user));
@@ -163,7 +162,7 @@ export class AssessmentComponent implements OnInit {
 
 
 		/*
-    	this.mongodbService.addResponse(this.user._id, this.response).subscribe(
+    	this.mongodbService.addResponse(this.user, this.response).subscribe(
       		result=> {
       			this.user.responses.push(this.response);
 				this.store.dispatch(CounterActions.create_user(this.user));

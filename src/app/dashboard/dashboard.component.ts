@@ -48,7 +48,7 @@ export class DashboardComponent implements OnInit {
 		//this.getUsers();
     
   }
-
+/*
   getUsers(){
     this.mongodbService.getAllPeople().subscribe(  
         fields => {
@@ -57,6 +57,7 @@ export class DashboardComponent implements OnInit {
       }, err => {console.log("Error getting all people");}
     );
   }
+*/
 
   searchProxyUsers(){
     this.mongodbService.searchProxyPerson(this.admin.sponsor_code).subscribe(  
@@ -66,7 +67,7 @@ export class DashboardComponent implements OnInit {
       }, err => {console.log("Error getting all people");}
     );
   }
-
+/*
   searchUsers(){
     this.mongodbService.searchPerson(this.admin.sponsor_code).subscribe(  
         fields => {
@@ -84,7 +85,7 @@ export class DashboardComponent implements OnInit {
       }, err => {console.log("Error finding Person");}
     );  
   }
-
+*/
   updateUser(person:ProxyUser) {
 
     if(person.oid== "0"){
@@ -97,9 +98,10 @@ export class DashboardComponent implements OnInit {
         if(fields.length == 1){
             this.message = 'User name/password must be unique system-wide.'; 
         }else{
-          this.mongodbService.updatePerson(person._id, person.oid, person.study_code, person.password).subscribe(
+          this.mongodbService.updatePerson(person.oid, person.study_code, person.password, person.sponsor_code).subscribe(
             data => {
-              this.searchUsers(); 
+              //this.searchUsers(); 
+              this.searchProxyUsers();
             }, err => {console.log("Error getting all people");}
           )
         }
@@ -109,13 +111,13 @@ export class DashboardComponent implements OnInit {
 
   }
 
-  deleteUser(user_id:string) {
-    this.mongodbService.deletePerson(user_id).subscribe(
+  deleteUser(user:User) {
+    this.mongodbService.deletePerson(user).subscribe(
       fields => {
         //console.log(fields);
         this.message = fields.message;
         //this.getUsers(); 
-        this.searchUsers();
+        this.searchProxyUsers();
       }, err => {console.log("Error deleting person");}
     )  
   }
@@ -144,7 +146,16 @@ export class DashboardComponent implements OnInit {
         }
         for (let key2 of Object.keys(_data)) {
           //data_export = data_export +  "\"" + _data[key2] +  "\"" + "\t";
-          data_export = data_export +  "\"" + _data[key2] +  "\"" + ",";
+
+
+          if(key2 == "Started" || key2 == "Finished"){
+            data_export = data_export +  "\"" + new Date(_data[key2]) +  "\"" + ",";
+          }else{
+            data_export = data_export +  "\"" + _data[key2] +  "\"" + ",";
+          }
+          
+
+
         }
         data_export = data_export.slice(0, -1);
         data_export = data_export + "\n";
@@ -181,9 +192,9 @@ export class DashboardComponent implements OnInit {
 
   }
 
- exportSummaryData(user_id:string) {
+ exportSummaryData(user: User) {
 
-    this.mongodbService.findPerson(user_id).subscribe(  
+    this.mongodbService.getUser(user).subscribe(  
       fields => {
         var user = fields;
   
@@ -244,10 +255,10 @@ export class DashboardComponent implements OnInit {
 
 
 
-  exportData(user_id:string) {
+  exportData(user: User) {
 
     
-    this.mongodbService.findPerson(user_id).subscribe(  
+    this.mongodbService.getUser(user).subscribe(  
       fields => {
         var user = fields;
 
@@ -321,9 +332,13 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/portal','Login to begin assessment']);
   }
 
-  selectUser(user_id:string) {
+  gotoReport(user:User){
+    this.router.navigate(['/report',user.oid, user.sponsor_code]);
+  }
 
-    this.mongodbService.findPerson(user_id).subscribe(  
+  selectUser(user: User) {
+
+    this.mongodbService.getUser(user).subscribe(  
       fields => {
         this.person = new User(); 
         this.person.oid = fields.oid;

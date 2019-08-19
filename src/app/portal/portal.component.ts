@@ -43,7 +43,7 @@ export class PortalComponent implements OnInit {
 
   this.mongodbService.loginPerson(this.study_code, this.password).subscribe(  
     fields => {
-
+    
         if(fields.length == 1){
 
           this.user = fields[0];

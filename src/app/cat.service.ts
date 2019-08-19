@@ -3,7 +3,7 @@ import { Observable } from 'rxjs/Observable';
 import { EmptyObservable } from "rxjs/observable/EmptyObservable"
 import { Item } from './item';
 import { Map } from './map';
-import { FORMS } from './forms';
+//import { FORMS } from './forms';
 import { Form } from './form';
 import { Assessment } from './assessment';
 import { Response } from './response';
@@ -53,7 +53,7 @@ export class CatService {
 				}
 			}
 			
-	    	this.mongodbService.updateUserAssessment(user._id, user).subscribe(
+	    	this.mongodbService.updateUserAssessment(user).subscribe(
 	      		data=>{
 	      			this.store.dispatch(CounterActions.create_user(data));
 	      		}
@@ -190,7 +190,7 @@ export class CatService {
 
   		var user = this.store.getState().user;
 
-		return this.mongodbService.getResponses(user._id).map(
+		return this.mongodbService.getResponses(user.oid, user.sponsor_code).map(
 			data=>{
 
 				let assessment = user.assessments.filter((a) => a.Active === true);
@@ -291,7 +291,7 @@ export class CatService {
 
 		//_result.fit = this.person_fit(items, newton_rhapson[0]);
 		_result.fit = this.person_fit(items, EAP);
-		console.log(items.length + ":" + EAP + ":" + newton_rhapson[0] + ":" + EAPLog);
+		//console.log(items.length + ":" + EAP + ":" + newton_rhapson[0] + ":" + EAPLog);
   		return _result;
 
   	}
@@ -460,8 +460,68 @@ export class CatService {
 
   	}
 
- 	loadForms(user: User): Observable<User>{
+/*
+	getForms(user: User): Form[] {
 
+		let forms = Array<Form>();
+		this.mongodbService.getForms().subscribe(
+			data=>{
+				
+				for(var j=0; j < data.length; j++){
+					let _form = new Form();
+					_form.FormOID = data[j].FormOID;
+					_form.ID = data[j].ID;
+					_form.Name = data[j].Name;
+					_form.Domain = data[j].Domain;
+					_form.Items = [];
+
+					for (var item of data[j].Items) {	
+						if( parseInt(item.Operator) != 0 && (parseInt(item.Operator) & user.exlusion_code) > 0 ){
+
+						}else{
+							_form.Items.push(item);
+						}
+					}		
+					forms.push(_form);
+				}
+			}
+		)
+
+		return forms;
+	}
+
+ 	loadForms2(user: User): Observable<User>{
+
+		this.mongodbService.getForms().subscribe(
+			data=>{
+				let forms = Array<Form>();
+
+				for(var j=0; j < data.length; j++){
+					let _form = new Form();
+					_form.FormOID = data[j].FormOID;
+					_form.ID = data[j].ID;
+					_form.Name = data[j].Name;
+					_form.Domain = data[j].Domain;
+					_form.Items = [];
+
+					for (var item of data[j].Items) {	
+						if( parseInt(item.Operator) != 0 && (parseInt(item.Operator) & user.exlusion_code) > 0 ){
+
+						}else{
+							_form.Items.push(item);
+						}
+					}		
+					forms.push(_form);
+				}
+
+				Observable<User> user = this.mongodbService.loadForms(user.oid, user.sponsor_code, forms);
+			}
+		)
+
+	}
+
+
+ 	loadForms(user: User): Observable<User>{
 
 		let forms = Array<Form>();
 		
@@ -485,7 +545,7 @@ export class CatService {
 			}		
 			forms.push(_form);
 
-			/*
+			// below should be commented out
 			for (var item of FORMS[j].Items) {
 				if( parseInt(item.Operator) != 0 && (parseInt(item.Operator) & user.exlusion_code) > 0 ){
 					var index = FORMS[j].Items.indexOf(item);
@@ -501,16 +561,16 @@ export class CatService {
 					FORMS[j].Items.splice(i,1);
 				}
 			}
-			*/
+			// above should be commented out
 
 			//console.log(FORMS[j].FormOID + " : " + FORMS[j].Items.length);
 		}
 
     	//return this.mongodbService.loadForms(user._id, FORMS);
-    	return this.mongodbService.loadForms(user._id, forms);
+    	return this.mongodbService.loadForms(user.oid, user.sponsor_code, forms);
 
 	}
-
+*/
 
 
 
@@ -521,7 +581,7 @@ export class CatService {
 
 		if(assessment == null){
 
-	    	return this.mongodbService.startAssessment(user._id, user.assessments).map(
+	    	return this.mongodbService.startAssessment(user).map(
 	      		data=>{
 	      			this.store.dispatch(CounterActions.create_user(data));
 	      			return new EmptyObservable<Item>();
@@ -536,7 +596,7 @@ export class CatService {
 
 		assessment[0].Active = true;
  
-    	return this.mongodbService.startAssessment(user._id, user.assessments).map(
+    	return this.mongodbService.startAssessment(user).map(
       		data=>{
       			this.store.dispatch(CounterActions.create_user(data));
 
@@ -572,17 +632,5 @@ export class CatService {
       		}
     	)
   	}
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

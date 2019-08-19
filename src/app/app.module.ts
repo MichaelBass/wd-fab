@@ -6,7 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
 import { appStoreProviders } from './app.store';
 
-
+import { ChartsModule } from 'ng2-charts';
 
 import { LoginComponent } from './login/login.component';
 import { DemographicsComponent } from './demographics/demographics.component';
@@ -19,8 +19,7 @@ import { IRTService } from './irt.service';
 import { MongoDbService } from './mongo-db.service';
 import { AppRoutingModule } from './/app-routing.module';
 import { FinishComponent } from './finish/finish.component';
-
-
+import { ReportComponent } from './report/report.component';
 
 @NgModule({
   declarations: [
@@ -31,16 +30,19 @@ import { FinishComponent } from './finish/finish.component';
     IntroComponent,
     PortalComponent,
     DashboardComponent,
-    FinishComponent
+    FinishComponent,
+    ReportComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
+    ChartsModule,
     AppRoutingModule
+    
   ],
-  providers: [CatService,IRTService,MongoDbService,appStoreProviders, { provide: 'Window',  useValue: window }],
+  providers: [CatService,IRTService,MongoDbService, appStoreProviders, { provide: 'Window',  useValue: window }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

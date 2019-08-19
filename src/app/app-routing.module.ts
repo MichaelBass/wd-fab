@@ -8,6 +8,7 @@ import { IntroComponent } from './intro/intro.component';
 import { PortalComponent } from './portal/portal.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { FinishComponent } from './finish/finish.component';
+import { ReportComponent } from './report/report.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/portal', pathMatch: 'full' },
@@ -22,7 +23,8 @@ const routes: Routes = [
   { path: 'demographics', component: DemographicsComponent },
   { path: 'assessment', component: AssessmentComponent },
   { path: 'finish', component: FinishComponent },
-  { path: 'finish/:message', component: FinishComponent }
+  { path: 'finish/:message', component: FinishComponent },
+  { path: 'report/:oid/:sponsor_code', component: ReportComponent },
 ];
 
 @NgModule({

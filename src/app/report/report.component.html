@@ -1,0 +1,13 @@
+
+<p><label class="label label-primary"> user - {{user.study_code}}</label></p>
+
+  <div>
+    <div style="display: block">
+      <canvas baseChart
+        [datasets]="radarChartData"
+        [options]="radarChartOptions"
+        [labels]="radarChartLabels"
+        [chartType]="radarChartType">
+      </canvas>
+    </div>
+  </div>
