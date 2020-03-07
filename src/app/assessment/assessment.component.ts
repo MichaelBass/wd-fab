@@ -94,55 +94,17 @@ export class AssessmentComponent implements OnInit {
 			
 		}
 
-
-
-		/*
-		this.catService.getNextItem().subscribe(
-			data => { 
-				this.clear = false;
-				this.item = data;
-				if( this.item.ID == undefined ){
-
-					this.user = this.store.getState().user;
-				    let assessment2 = this.user.assessments.filter((a) => a.Finished == null); // array of current assessment
-				    if(assessment2.length > 0){
-				    	this.getItem();
-				    } else{
-				    	this.router.navigate(['/finish','The assessment is complete.']);
-				    }
-					
-				}
-			}
-		)
-		*/
 	}
-
+/*
 	calculateEstimate(): void{
-
 
 		var _result = this.catService.calculateEstimateSync();
 		this.user.results.push(_result);
 		this.store.dispatch(CounterActions.create_user(this.user));
 		this.getNextItem();
 		
-		/*
-		this.catService.calculateEstimate().subscribe(
-			data => { 
-
-				var _result = data;
-				this.mongodbService.addResult(this.user, _result).subscribe(
-					data2=> {
-						this.user.results.push(_result);
-						this.store.dispatch(CounterActions.create_user(this.user));
-						this.getNextItem();
-					},
-      				err => {console.log("Error adding Results");}
-				)
-			}
-		)
-		*/
 	}
-	
+*/	
 	getResponse(): void {
 		this.response = new Response();
 		this.response.oid = this.user.oid;
@@ -157,20 +119,16 @@ export class AssessmentComponent implements OnInit {
 		this.selectedMap = null;
 
 		this.user.responses.push(this.response);
+		//this.store.dispatch(CounterActions.create_user(this.user));
+		
+		//this.calculateEstimate();
+
+		var _result = this.catService.calculateEstimateSync(this.user);
+		this.user.results.push(_result);
 		this.store.dispatch(CounterActions.create_user(this.user));
-		this.calculateEstimate();
+		this.getNextItem();
 
-
-		/*
-    	this.mongodbService.addResponse(this.user, this.response).subscribe(
-      		result=> {
-      			this.user.responses.push(this.response);
-				this.store.dispatch(CounterActions.create_user(this.user));
-      			this.calculateEstimate();
-      		},
-      		err => {console.log("Error adding Responses");}
-    	)
-    	*/	
+	
 	}
 
 }

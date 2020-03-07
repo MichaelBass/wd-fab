@@ -201,7 +201,7 @@ export class DashboardComponent implements OnInit {
        //var data_export = " \"" + "Scale" + " \" \t \""  + "Administration Time"  + " \" \t \""  + "Number of Items"  + " \" \t \"" + "Score"  + " \" \t \""  + "Standard Error"  + " \" \n";
        //var data_export = "Scale" + "\t"  + "Administration Time"  + "\t"  + "Number of Items"  + "\t" + "Score"  + "\t"  + "Standard Error"  + "\n";
        
-        var data_export = "Scale" + ","  + "Administration Time"  + ","  + "Number of Items"  + "," + "Score"  + ","  + "Standard Error"  + "\n";
+        var data_export = "Scale" + ","  + "Administration Time"  + ","  + "Number of Items"  + "," + "Score"  + ","  + "Standard Error" + "," + "Normed Score"  + ","  + "Normed SE"  + "\n";
        
         for (let assessment of user.assessments) {
 
@@ -218,7 +218,52 @@ export class DashboardComponent implements OnInit {
           let _result = filtered_results[filtered_results.length -1];
           let score = "N/A";
           let se = "N/A";
+          let normed_score = "N/A";
+          let normed_se = "N/A";
           if(_result != undefined){
+
+            switch(assessment.Domain) {
+              case "Cognition & Communication":
+                normed_score = (50 + Math.round( (_result.score - 0.114)/3.817 * 10)/10 * 10 ).toString();
+                normed_se = (Math.round(_result.error/3.817 * 10)/10 * 10).toString();
+                break;
+              case "Resilience & Sociability":
+                normed_score = (50 + Math.round( (_result.score - 2.12)/2.33 * 10)/10 * 10 ).toString();
+                normed_se = (Math.round(_result.error/2.33 * 10)/10 * 10).toString();
+                break;
+              case "Self-Regulation":
+                normed_score = (50 + Math.round( (_result.score - 0.556)/1.854 * 10)/10 * 10 ).toString();
+                normed_se = (Math.round(_result.error/1.854 * 10)/10 * 10).toString();
+                break;                            
+              case "Mood & Emotions":
+                normed_score = (50 + Math.round( (_result.score)/1.58 * 10)/10 * 10 ).toString();
+                normed_se = (Math.round(_result.error/1.58 * 10)/10 * 10).toString();
+                break;
+              case "Basic Mobility":
+                normed_score = (50 + Math.round( (_result.score - 0.338)/0.968 * 10)/10 * 10 ).toString();
+                normed_se = (Math.round(_result.error/0.968 * 10)/10 * 10).toString();
+                break;
+              case "Upper Body Function":
+                normed_score = (50 + Math.round( (_result.score - 0.788)/2.293 * 10)/10 * 10 ).toString();
+                normed_se = (Math.round(_result.error/2.293 * 10)/10 * 10).toString();
+                break;
+              case "Fine Motor Function":
+                normed_score = (50 + Math.round( (_result.score - 0.113)/0.788 * 10)/10 * 10 ).toString();
+                normed_se = (Math.round(_result.error/0.788 * 10)/10 * 10).toString();
+                break;
+              case "Community Mobility":
+                normed_score = (50 + Math.round( (_result.score - 0.329)/1.535 * 10)/10 * 10 ).toString();
+                normed_se = (Math.round(_result.error/1.535 * 10)/10 * 10).toString();
+                break;
+              case "Wheelchair":
+                normed_score = (50 + Math.round( (_result.score - 0.329)/1.535 * 10)/10 * 10 ).toString();
+                normed_se = (Math.round(_result.error/1.535 * 10)/10 * 10).toString();
+                break;              
+              default:
+                normed_score = "N/A";
+                normed_se = "N/A";
+            }
+
             //score = (Math.floor(_result.score * 10)/10 ).toString();
             //se = (Math.floor(_result.error * 10)/10 ).toString();
              score = (50 + Math.round(_result.score * 10)/10 * 10 ).toString();
@@ -228,7 +273,7 @@ export class DashboardComponent implements OnInit {
 
          // data_export = data_export +  " \"" + assessment.Domain + " \" \t \""  + time_display  + " \" \t \"" + filtered_results.length.toString()  + " \" \t \"" + score  + " \" \t \"" + se  + " \" \n";
          // data_export = data_export + assessment.Domain + "\t"  + time_display  + "\t" + filtered_results.length.toString()  + "\t" + score  + "\t" + se  + "\n";
-          data_export = data_export + assessment.Domain + ","  + time_display  + "," + filtered_results.length.toString()  + "," + score  + "," + se  + "\n";
+          data_export = data_export + assessment.Domain + ","  + time_display  + "," + filtered_results.length.toString()  + "," + score  + "," + se + "," + normed_score  + "," + normed_se  + "\n";
 
         }
 
@@ -322,6 +367,10 @@ export class DashboardComponent implements OnInit {
           }
       }, err => {console.log("Error adding person");}
     );
+  }
+
+  gotoUtility(){
+    this.router.navigate(['/utility']);
   }
 
   logOff(){

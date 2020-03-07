@@ -2,7 +2,9 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { MongoDbService } from '../mongo-db.service';
 import { User } from '../user';
 
-import {ActivatedRoute} from "@angular/router";
+import { KVObject } from '../kvobject';
+
+import {ActivatedRoute, ParamMap} from "@angular/router";
 import {Router} from "@angular/router";
 
 import { Store } from 'redux';
@@ -25,11 +27,70 @@ export class PortalComponent implements OnInit {
   message: string;
   nextPage: string;
 
+  _params: Array<KVObject> = [];
+
   constructor(@Inject(AppStore) private store: Store<AppState>, private mongodbService: MongoDbService, private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit() {
     this.route.params.subscribe(params => {
       this.message = params['message'];
+    });
+
+    this.route.queryParamMap.subscribe(
+      (params: ParamMap) => {
+
+
+        if( params.get('P') != null ){
+            let objP = new KVObject();
+            objP.key = "P";
+            objP.value = params.get('P');
+            this._params.push(objP);
+        }
+
+        if( params.get('VID') != null ){
+            let objVID = new KVObject();
+            objVID.key = "VID";
+            objVID.value = params.get('VID');
+            this._params.push(objVID);
+        }
+
+        if( params.get('ID1') != null ){
+            let objID1 = new KVObject();
+            objID1.key = "ID1";
+            objID1.value = params.get('ID1');
+            this._params.push(objID1);
+        }
+
+        if( params.get('ID2') != null ){
+            let objID2 = new KVObject();
+            objID2.key = "ID2";
+            objID2.value = params.get('ID2');
+            this._params.push(objID2);
+        }
+
+        if( params.get('Q1') != null ){
+            let objQ1 = new KVObject();
+            objQ1.key = "Q1";
+            objQ1.value = params.get('Q1');
+            this._params.push(objQ1);
+        }
+
+        if( params.get('Q2') != null ){
+            let objQ2 = new KVObject();
+            objQ2.key = "Q2";
+            objQ2.value = params.get('Q2');
+            this._params.push(objQ2);
+        }
+
+        if( params.get('sc') != null && params.get('pw') != null ){
+            this.study_code = params.get('sc');
+            this.password = params.get('pw');
+            this.mongodbService.addUserParams(this.study_code,this.password, this._params).subscribe(
+              fields => {
+                this.addUser();
+            });
+            
+        }
     });
   }
 
@@ -47,6 +108,7 @@ export class PortalComponent implements OnInit {
         if(fields.length == 1){
 
           this.user = fields[0];
+          this.user.params = this._params;
           this.store.dispatch(CounterActions.create_user(this.user));
           if(this.user.oid != "0"){
 

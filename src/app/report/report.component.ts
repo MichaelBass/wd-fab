@@ -25,17 +25,31 @@ export class ReportComponent implements OnInit {
   sponsor_code:string;
 
   public radarChartOptions: RadialChartOptions = {
-    responsive: true,
+    responsive: true
+  };
+
+  public radarChartOptions2: RadialChartOptions = {
+    responsive: true
   };
 
   public radarChartLabels: Label[];
-
+  public radarChartLabels2: Label[];
 
   public radarChartData: ChartDataSets[] = [
-    { data: [50, 50, 50, 50, 50, 50, 50, 50, 50], label: 'Mean' },
-    { data: [50, 50, 50, 50, 50, 50, 50, 50, 50], label: 'Series B' }
+    { data: [50, 50, 50, 50], label: 'Series B' },
+    { data: [0, 0, 0, 0], label: 'Min' },
+    { data: [50, 50, 50, 50], label: 'Mean' },
+    { data: [100, 100, 100, 100], label: 'Max' }
+    
   ];
 
+  public radarChartData2: ChartDataSets[] = [
+    { data: [50, 50, 50, 50, 50], label: 'Series B' },
+    { data: [0, 0, 0, 0, 0], label: 'Min' },
+    { data: [50, 50, 50, 50, 50], label: 'Mean' },
+    { data: [100, 100, 100, 100, 100], label: 'Max' }
+    
+  ];
 
   public radarChartType: ChartType = 'radar';
 
@@ -57,31 +71,94 @@ export class ReportComponent implements OnInit {
       this.oid = params['oid'];
       this.sponsor_code = params['sponsor_code'];
 
+
 		this.mongodbService.findUser(this.oid, this.sponsor_code).subscribe(  
 		  fields => {
       var user = fields;
       this.user = fields;
+
 			var myLabels = new Array();
 			var myData = new Array();
 
+      var myLabels2 = new Array();
+      var myData2 = new Array();
+
+
 		    for (let assessment of user.assessments) {
 
-		    	myLabels.push(assessment.Domain);
+          if(assessment.Domain === "Cognition & Communication" || assessment.Domain === "Resilience & Sociability" || assessment.Domain === "Self-Regulation" || assessment.Domain === "Mood & Emotions"){
+            myLabels.push(assessment.Domain);
+          }
+
+          if(assessment.Domain === "Basic Mobility" || assessment.Domain === "Upper Body Function" || assessment.Domain === "Fine Motor Function" || assessment.Domain === "Community Mobility" || assessment.Domain === "Wheelchair"){
+            myLabels2.push(assessment.Domain);
+          }
+
+
 
           let filtered_results = user.results.filter((a) => a.oid === assessment.Domain);
           let _result = filtered_results[filtered_results.length -1];
           let score = "N/A";
-					score = (50 + Math.round(_result.score * 10)/10 * 10 ).toString();
+          if (typeof _result === "undefined"){
+          }else{
 
-				  myData.push(score);	
+            switch(assessment.Domain) {
+              case "Cognition & Communication":
+                score = (50 + Math.round( (_result.score - 0.114)/3.817 * 10)/10 * 10 ).toString();
+                break;
+              case "Resilience & Sociability":
+                score = (50 + Math.round( (_result.score - 2.12)/2.33 * 10)/10 * 10 ).toString();
+                break;
+              case "Self-Regulation":
+                score = (50 + Math.round( (_result.score - 0.556)/1.854 * 10)/10 * 10 ).toString();
+                break;                            
+              case "Mood & Emotions":
+                score = (50 + Math.round( (_result.score)/1.58 * 10)/10 * 10 ).toString();
+                break;
+              case "Basic Mobility":
+                score = (50 + Math.round( (_result.score - 0.338)/0.968 * 10)/10 * 10 ).toString();
+                break;
+              case "Upper Body Function":
+                score = (50 + Math.round( (_result.score - 0.788)/2.293 * 10)/10 * 10 ).toString();
+                break;
+              case "Fine Motor Function":
+                score = (50 + Math.round( (_result.score - 0.113)/0.788 * 10)/10 * 10 ).toString();
+                break;
+              case "Community Mobility":
+                score = (50 + Math.round( (_result.score - 0.329)/1.535 * 10)/10 * 10 ).toString();
+                break;
+              case "Wheelchair":
+                score = (50 + Math.round( (_result.score - 0.329)/1.535 * 10)/10 * 10 ).toString();
+                break;              
+              default:
+                score = "N/A";
+            }
+
+            //score = (50 + Math.round(_result.score * 10)/10 * 10 ).toString();
+
+          }
+
+          if(assessment.Domain === "Cognition & Communication" || assessment.Domain === "Resilience & Sociability" || assessment.Domain === "Self-Regulation" || assessment.Domain === "Mood & Emotions"){
+            myData.push(score);
+          }
+
+          if(assessment.Domain === "Basic Mobility" || assessment.Domain === "Upper Body Function" || assessment.Domain === "Fine Motor Function" || assessment.Domain === "Community Mobility" || assessment.Domain === "Wheelchair"){
+            myData2.push(score);
+          }
+
+
 		    }
 
 			this.radarChartLabels = myLabels;
+      this.radarChartLabels2 = myLabels2;
 
-			let start:any = new Date(user.assessments[0].Started);	
+			let finished:any = new Date(user.assessments[0].Finished);	
 
-			this.radarChartData[1].data = myData;
-			this.radarChartData[1].label = "Assessment date: " + start.toLocaleDateString();
+			this.radarChartData[0].data = myData;
+			this.radarChartData[0].label = "Behavior Domains: " + finished.toLocaleDateString();
+
+      this.radarChartData2[0].data = myData2;
+      this.radarChartData2[0].label = "Physical Domains: " + finished.toLocaleDateString();
 
 
 		 }, err => {console.log("Error finding person");}

@@ -16,7 +16,7 @@ import {
 } from './counter.actions';
 
 const initialDemo: Demographic = {gender: -1,race: 0,other:'',age:null,walking:-1,wc:-1,drive:-1,public_transportation:-1};
-const initialState: AppState = { user: {oid: '0',study_code: '', password: '', sponsor_code:'', demo:initialDemo, forms:[],exlusion_code: -1, assessments:[], results:[], responses:[], message: ''}, admin:{"_id":"0","username":"","password":"","sponsor_code":"","message":""}};
+const initialState: AppState = { user: {oid: '0',study_code: '', password: '', sponsor_code:'', demo:initialDemo, forms:[],exlusion_code: -1, assessments:[], results:[], responses:[], message: '', params:[]}, admin:{"_id":"0","username":"","password":"","sponsor_code":"","message":""}};
 
 // Create our reducer that will handle changes to the state
 export const counterReducer: Reducer<AppState> =

@@ -19,8 +19,8 @@ import * as CounterActions from './counter.actions';
 @Injectable()
 export class CatService {
 
-
-	//private _item_index = -1;
+	private _domain_finished = false;
+	private _answered_items = 0;
 
 	constructor(@Inject(AppStore) private store: Store<AppState>, private mongodbService: MongoDbService, private irt: IRTService) {}
 	
@@ -35,19 +35,19 @@ export class CatService {
 		let filtered_results = user.results.filter((a) => a.oid === assessment[0].Domain);
 
 		// determine if need to get the next assessment
-		if ( (filtered_results.length > 5 && filtered_results[ filtered_results.length -1 ].error < 0.3873) || filtered_results.length >= 10 ) {
+		//if ( (filtered_results.length > 5 && filtered_results[ filtered_results.length -1 ].error < 0.3873) || filtered_results.length >= 10 || this._domain_finished ) {
+		if ( (this._answered_items > 5 && filtered_results[ filtered_results.length -1 ].error < 0.3873) || this._answered_items >= 10 || this._domain_finished ) {
+			this._domain_finished = false;
+			this._answered_items = 0;
 
-
-			for(var i = 0; i < user.assessments.length; i++){
+			for(var i = 0; i < user.assessments.length; i++){			
 				if(user.assessments[i].Active == true){
-
 					user.assessments[i].Active = false;
 					user.assessments[i].Finished = Date.now();
-
 					if( (i+1) == user.assessments.length){
-						assessment = null;
+						assessment = null;						
 					}else{
-						assessment[0] = user.assessments[i + 1];
+						assessment[0] = user.assessments[i + 1];					
 					}
 					break;
 				}
@@ -60,7 +60,6 @@ export class CatService {
 	    	)
 
 		}
-
 		return assessment;
 
 	}
@@ -76,7 +75,6 @@ export class CatService {
 
 		if(assessment[0].Started == null){
 			assessment[0].Started = Date.now();
-			//this._item_index = -1;
 		}
 
 		assessment[0].Active = true;
@@ -90,16 +88,7 @@ export class CatService {
 		}else{
 			var _item = this.calculateNextItem(forms[0]);
 			if(_item == null){
-				// clear assessment  TODO:  need to replace these assessment with the User.
-				assessment[0].Active = false;
-				assessment[0].Finished = Date.now();
-
-				let assessment2 = user.assessments.filter( (a) => a.Started == null );
-				assessment2[0].Active = true;
-
-				user.assessments = user.assessments.map(obj => assessment.find(o => o.Domain === obj.Domain) || obj);
-				user.assessments = user.assessments.map(obj => assessment2.find(o => o.Domain === obj.Domain) || obj);
-				this.store.dispatch(CounterActions.create_user(user));	
+				this._domain_finished = true;
 			}
 			return _item;
 		}
@@ -161,9 +150,9 @@ export class CatService {
 
 
 
-  	calculateEstimateSync() : Result {
+  	calculateEstimateSync(user:User) : Result {
 
-  		var user = this.store.getState().user;
+  		//var user = this.store.getState().user;
 
 		let assessment = user.assessments.filter((a) => a.Active === true);
 		let forms = user.forms.filter( (e) => e.Domain === assessment[0].Domain);
@@ -179,6 +168,11 @@ export class CatService {
 				}
 			}
 		}
+
+		if(user.responses[user.responses.length -1].Value != '8'){
+			this._answered_items = this._answered_items + 1;
+		}
+
 
 		var ItemID = user.responses[user.responses.length -1].ID;
 		
@@ -204,6 +198,7 @@ export class CatService {
 
 						if( !this.skipScoring(item[0]) ){
 							responseProperties.push(item[0]);
+							this._answered_items = this._answered_items + 1;
 						}
 					}
 				}
@@ -268,17 +263,23 @@ export class CatService {
   	calculateGRM(items: Array<Item>, FormID: string, ItemID: string): Result {
 
 		//var distro = this.irt.setNormalDistribution();
+		
 		var EAP = this.irt.getEAP(items);
-		var EAPLog = this.irt.getEAPLog(items);
+		//var EAP = this.irt.getEAPLog(items);
 
   		if(items.length == 0){
-  			return new Result();
+
+			var no_result = new Result();
+			no_result.oid = FormID;
+			no_result.ItemID = ItemID;
+  			return no_result;
   		}
 
 		var user = this.store.getState().user;
 		
-		var bisect_bias = this.bisectionMethod_bias(items, FormID);
-		var newton_rhapson = this.newton_rhapson(items, bisect_bias);
+		//var bisect_bias = this.bisectionMethod_bias(items, FormID);
+		//var newton_rhapson = this.newton_rhapson(items, bisect_bias);
+
 		//var SE = this.irt.L2_sum(items, newton_rhapson[0]);
 		var SE = this.irt.L2_sum(items, EAP);
 
@@ -290,7 +291,9 @@ export class CatService {
 		_result.error = 1.0/Math.sqrt(-1.0*SE);
 
 		//_result.fit = this.person_fit(items, newton_rhapson[0]);
+
 		_result.fit = this.person_fit(items, EAP);
+
 		//console.log(items.length + ":" + EAP + ":" + newton_rhapson[0] + ":" + EAPLog);
   		return _result;
 

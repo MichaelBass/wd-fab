@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 
 import { User } from './user';
@@ -12,7 +12,7 @@ import { Form } from './form';
 import { Item } from './item';
 
 import { Admin } from './admin';
-
+import { KVObject } from './kvobject';
 
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
@@ -50,6 +50,12 @@ export class MongoDbService {
     });
 
   }
+
+  notifyAdmin(user:User): Observable<any> {
+
+    return Observable.fromPromise( this.client.callFunction("notifyAdmin", [user]).then(result => {
+      return result;}) );
+    }
 
   getForms() : Observable<Form[]>{
     return Observable.fromPromise( this.client.callFunction("getForms", []).then(result => {
@@ -96,6 +102,12 @@ export class MongoDbService {
     return result;}) );
 		//return this.http.post<User>(`${this.API}/users`, {oid, study_code, password, sponsor_code}).catch((err) =>{return Observable.throw(err)});
 	}
+
+
+  addUserParams(study_code: string,password:string, params: Array<KVObject>): Observable<User> {
+      return Observable.fromPromise( this.client.callFunction("addUserParameters", [study_code, password, params]).then(result => {
+      return result;}) );
+  }
 
   saveDemo(oid: string,sponsor_code:string, dem: Demographic): Observable<User> {
       return Observable.fromPromise( this.client.callFunction("saveDemo", [oid, sponsor_code, dem]).then(result => {

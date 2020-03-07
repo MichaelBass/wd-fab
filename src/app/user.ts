@@ -3,6 +3,8 @@ import { Assessment } from './assessment';
 import { Form } from './form';
 import { Result } from './result';
 import { Response } from './response';
+import { KVObject } from './kvobject';
+
 export class User {
 	_id?:string;
   	oid: string;
@@ -17,4 +19,5 @@ export class User {
     results:Array<Result>;
     responses:Array<Response>;    
   	message:string;
+    params?:Array<KVObject>;
 }

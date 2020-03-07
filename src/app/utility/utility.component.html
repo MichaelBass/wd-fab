@@ -1,0 +1,13 @@
+<div>
+  	<p style="text-align:right">
+    <button (click)="process()"class="btn btn-default">Process</button>
+    <button (click)="download()"class="btn btn-default">Download</button>
+	</p>
+  <table class="table table-hover">
+	  <tr style="text-align:left">
+	    <td><input [(ngModel)]="prefix" placeholder="prefix"></td>
+	    <td><input [(ngModel)]="start" placeholder="start"></td>
+	    <td><input [(ngModel)]="end" placeholder="end"></td>
+	  </tr>
+	</table>
+</div>	

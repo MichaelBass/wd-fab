@@ -20,6 +20,7 @@ import { MongoDbService } from './mongo-db.service';
 import { AppRoutingModule } from './/app-routing.module';
 import { FinishComponent } from './finish/finish.component';
 import { ReportComponent } from './report/report.component';
+import { UtilityComponent } from './utility/utility.component';
 
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import { ReportComponent } from './report/report.component';
     PortalComponent,
     DashboardComponent,
     FinishComponent,
-    ReportComponent
+    ReportComponent,
+    UtilityComponent
   ],
   imports: [
     BrowserModule,
