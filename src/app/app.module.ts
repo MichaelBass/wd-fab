@@ -21,6 +21,9 @@ import { AppRoutingModule } from './/app-routing.module';
 import { FinishComponent } from './finish/finish.component';
 import { ReportComponent } from './report/report.component';
 import { UtilityComponent } from './utility/utility.component';
+import { QualtricsComponent } from './qualtrics/qualtrics.component';
+
+import { FormsComponent } from './forms/forms.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +36,9 @@ import { UtilityComponent } from './utility/utility.component';
     DashboardComponent,
     FinishComponent,
     ReportComponent,
-    UtilityComponent
+    UtilityComponent,
+    QualtricsComponent,
+    FormsComponent
   ],
   imports: [
     BrowserModule,

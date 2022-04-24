@@ -28,6 +28,11 @@ export class FinishComponent implements OnInit {
     });
 
 
+    if(this.user.params.length > 1){
+        this.message = "Loading. Please do not close your browser.";
+    }
+
+
     this.mongodbService.notifyAdmin(this.user).subscribe(
       data => { 
         console.log(data);
@@ -194,10 +199,13 @@ export class FinishComponent implements OnInit {
       scoresparam += "&D="+ this.user.demo.drive;
       scoresparam += "&PT="+ this.user.demo.public_transportation;
 
+      scoresparam += "&sc="+ this.user.study_code;
+      scoresparam += "&pw="+ this.user.password;
 
 
-      //console.log('https://survey.qualtrics.com/jfe/form/SV_0JJU7SWP7sToGrP?' + scoresparam.substring(1));
-      window.location.href = 'https://survey.qualtrics.com/jfe/form/SV_0JJU7SWP7sToGrP?' + scoresparam.substring(1);
+
+      console.log('https://unh.az1.qualtrics.com/jfe/form/SV_cCOFrQ8TxMW0FNA?' + scoresparam.substring(1));
+      window.location.href = 'https://unh.az1.qualtrics.com/jfe/form/SV_cCOFrQ8TxMW0FNA?' + scoresparam.substring(1);
   }
 
 }

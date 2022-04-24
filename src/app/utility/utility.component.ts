@@ -24,7 +24,7 @@ export class UtilityComponent implements OnInit {
   counter:number;
   start:number;
   myInterval:any;
-
+  message:string;
 
   constructor(@Inject(AppStore) private store: Store<AppState>, private mongodbService: MongoDbService, private route: ActivatedRoute, private router: Router) { }
 
@@ -132,8 +132,6 @@ export class UtilityComponent implements OnInit {
       }, err => {console.log("Error getting all people");}
     );
 
-
-
   }
 
   createUser(a,b){
@@ -147,24 +145,23 @@ export class UtilityComponent implements OnInit {
   	let cred = a + "_" + unique.substring(unique.length - 4);
 
   	for(var i=0; i < 8;i++){
-		let position = Math.ceil(Math.random() * 62);
-		let position2 = Math.ceil(Math.random() * 62);
+  		let position = Math.ceil(Math.random() * 62);
+  		let position2 = Math.ceil(Math.random() * 62);
 
-		username = username + alphabet.substring(position, position+1);
-		pwd = pwd + alphabet.substring(position2, position2+1);
-  	}
+  		username = username + alphabet.substring(position, position+1);
+  		pwd = pwd + alphabet.substring(position2, position2+1);
+    }
 	
 
-	this.mongodbService.addPerson(cred, username, pwd, this.admin.sponsor_code).subscribe(
+	  this.mongodbService.addPerson(cred, username, pwd, this.admin.sponsor_code).subscribe(
       data => { 
-			console.log(data);
-      }, err => {console.log("Error adding person");}
+        this.message = "creating user " + data.oid;
+      }, err => {this.message = "Error adding person";}
     )
     
-
   	this.counter++;
   	if (this.counter == b){
-  		console.log("we are here");
+      this.message = "Finished";
   		clearInterval(this.myInterval);
   	}
   }
@@ -173,7 +170,7 @@ export class UtilityComponent implements OnInit {
   	this.counter = this.start;
   	var a = this.prefix;
   	var b = this.end;
-	this.myInterval = setInterval( ()=>{ this.createUser(a,b); }, 5000);
+	  this.myInterval = setInterval( ()=>{ this.createUser(a,b); }, 2000);
   }
 
 }

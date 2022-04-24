@@ -13,29 +13,27 @@ import { AppState } from '../app.state';
 import * as CounterActions from '../counter.actions';
 
 @Component({
-  selector: 'app-portal',
-  templateUrl: './portal.component.html',
-  styleUrls: ['../app.component.css','./portal.component.css']
+  selector: 'app-qualtrics',
+  templateUrl: './qualtrics.component.html',
+  styleUrls: ['../app.component.css','./qualtrics.component.css']
 })
-export class PortalComponent implements OnInit {
+export class QualtricsComponent implements OnInit {
 
   user: User;
 
   _id: string;
   study_code: string;
   password: string;
-  message: string;
   nextPage: string;
-
+  message: string;
   _params: Array<KVObject> = [];
 
   constructor(@Inject(AppStore) private store: Store<AppState>, private mongodbService: MongoDbService, private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit() {
-    this.route.params.subscribe(params => {
-      this.message = params['message'];
-    });
 
+    this.message = "You will be directed to your survey shortly. Please refresh your browser if you are not redirected";
+    
     this.route.queryParamMap.subscribe(
       (params: ParamMap) => {
 
@@ -81,48 +79,37 @@ export class PortalComponent implements OnInit {
             objQ1.value = params.get('Q1');
             this._params.push(objQ1);
         }
-
+        /*
         if( params.get('Q2') != null ){
             let objQ2 = new KVObject();
             objQ2.key = "Q2";
             objQ2.value = params.get('Q2');
             this._params.push(objQ2);
         }
-
+        */
         if( params.get('PWID') != null ){
 
-            let combinedID = params.get('PWID').split('|');
+            // let combinedID = params.get('PWID').split('-');
 
-            this.study_code = combinedID[0];
-            this.password = combinedID[1];
+            // this.study_code = combinedID[0];
+            // this.password = combinedID[1];
 
-            // this.study_code = params.get('sc');
-            // this.password = params.get('pw');
-            this.mongodbService.addUserParams(this.study_code,this.password, this._params).subscribe(
-              fields => {
-                this.addUser();
-            });
-            
-        }
+            this.study_code = params.get('PWID');
+            this.password = params.get('PWID');
 
-        if( params.get('sc') != null && params.get('pw') != null ){
-            this.study_code = params.get('sc');
-            this.password = params.get('pw');
-            this.mongodbService.addUserParams(this.study_code,this.password, this._params).subscribe(
-              fields => {
-                this.addUser();
-            });
-            
+            //2020-12-4  added login on the fly setting OID and study code to first param of PWID.
+            //this.mongodbService.addPerson(combinedID[0], combinedID[0], combinedID[1], "Group 1").subscribe(
+            this.mongodbService.addPerson(params.get('PWID'), params.get('PWID'), params.get('PWID'), "Q2304").subscribe(
+            data => { 
+                this.mongodbService.addUserParams(this.study_code,this.password, this._params).subscribe(
+                  fields => {
+                    this.addUser();
+                }, err => {console.log("Error updating person with parameters");});
+            }, err => {console.log("Error adding person to system");});  
         }
     });
   }
 
-  onKeydown(event) {
-    if (event.key === "Enter") {
-      this.addUser();
-    }
-  }
-  
   addUser() {
 
   this.mongodbService.loginPerson(this.study_code, this.password).subscribe(  
@@ -193,3 +180,4 @@ verifyAssessments():boolean{
 }  
 
 }
+
